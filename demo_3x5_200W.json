@@ -1,0 +1,16 @@
+{
+ "format": "rodillo3d-workout",
+ "version": 1,
+ "name": "DEMO – 3x5' a 200 W",
+ "source": "Demo de prueba",
+ "ftp": 225,
+ "totalSec": 1260,
+ "steps": [
+  {"label": "Intervalo 1", "kind": "interval", "dur": 300, "watts": 200, "src": "200 W"},
+  {"label": "Descanso libre", "kind": "recovery", "dur": 120, "watts": 100, "src": "libre"},
+  {"label": "Intervalo 2", "kind": "interval", "dur": 300, "watts": 200, "src": "200 W"},
+  {"label": "Descanso libre", "kind": "recovery", "dur": 120, "watts": 100, "src": "libre"},
+  {"label": "Intervalo 3", "kind": "interval", "dur": 300, "watts": 200, "src": "200 W"},
+  {"label": "Descanso libre", "kind": "recovery", "dur": 120, "watts": 100, "src": "libre"}
+ ]
+}
