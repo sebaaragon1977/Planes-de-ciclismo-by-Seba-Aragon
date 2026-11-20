@@ -2,7 +2,7 @@
 
 App web para rodillo smart: carga un track **GPX** (por ejemplo, exportado de Garmin), lo reconstruye en **3D** con relieve y foto satelital, y simula la pendiente cambiando la resistencia del rodillo. También corre **entrenamientos estructurados en modo ERG** (.json o .zwo de Zwift).
 
-**Usala acá:** https://sebaaragon1977.github.io/planes-de-ciclismo-by-seba-aragon/
+**Usala acá:** https://sebaaragon1977.github.io/Planes-de-ciclismo-by-Seba-Aragon/
 
 ## Requisitos
 - **Google Chrome o Edge** (Mac, Windows, Linux o Android). Safari, Firefox e iPhone no permiten Bluetooth web.
