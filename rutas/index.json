@@ -1,0 +1,299 @@
+[
+ {
+  "id": "alpe-dhuez",
+  "nombre": "Alpe d'Huez",
+  "pais": "Francia",
+  "tipo": "Puerto",
+  "km": 15.1,
+  "archivo": "rutas/alpe-dhuez.gpx",
+  "aprox": false
+ },
+ {
+  "id": "mont-ventoux",
+  "nombre": "Mont Ventoux (desde Bédoin)",
+  "pais": "Francia",
+  "tipo": "Puerto",
+  "km": 21.8,
+  "archivo": "rutas/mont-ventoux.gpx",
+  "aprox": false
+ },
+ {
+  "id": "tourmalet",
+  "nombre": "Col du Tourmalet (desde Luz-Saint-Sauveur)",
+  "pais": "Francia",
+  "tipo": "Puerto",
+  "km": 18.4,
+  "archivo": "rutas/tourmalet.gpx",
+  "aprox": false
+ },
+ {
+  "id": "galibier",
+  "nombre": "Col du Galibier (desde Valloire)",
+  "pais": "Francia",
+  "tipo": "Puerto",
+  "km": 17.6,
+  "archivo": "rutas/galibier.gpx",
+  "aprox": false
+ },
+ {
+  "id": "izoard",
+  "nombre": "Col d'Izoard (desde Briançon)",
+  "pais": "Francia",
+  "tipo": "Puerto",
+  "km": 20.1,
+  "archivo": "rutas/izoard.gpx",
+  "aprox": false
+ },
+ {
+  "id": "madeleine",
+  "nombre": "Col de la Madeleine (desde La Chambre)",
+  "pais": "Francia",
+  "tipo": "Puerto",
+  "km": 19.8,
+  "archivo": "rutas/madeleine.gpx",
+  "aprox": false
+ },
+ {
+  "id": "croix-de-fer",
+  "nombre": "Col de la Croix de Fer (desde St-Jean-de-Maurienne)",
+  "pais": "Francia",
+  "tipo": "Puerto",
+  "km": 29.7,
+  "archivo": "rutas/croix-de-fer.gpx",
+  "aprox": false
+ },
+ {
+  "id": "stelvio",
+  "nombre": "Passo dello Stelvio (desde Prato)",
+  "pais": "Italia",
+  "tipo": "Puerto",
+  "km": 25.2,
+  "archivo": "rutas/stelvio.gpx",
+  "aprox": false
+ },
+ {
+  "id": "zoncolan",
+  "nombre": "Monte Zoncolan (desde Ovaro)",
+  "pais": "Italia",
+  "tipo": "Puerto",
+  "km": 9.2,
+  "archivo": "rutas/zoncolan.gpx",
+  "aprox": false
+ },
+ {
+  "id": "mortirolo",
+  "nombre": "Passo del Mortirolo (desde Mazzo)",
+  "pais": "Italia",
+  "tipo": "Puerto",
+  "km": 6.8,
+  "archivo": "rutas/mortirolo.gpx",
+  "aprox": false
+ },
+ {
+  "id": "gavia",
+  "nombre": "Passo Gavia (desde Ponte di Legno)",
+  "pais": "Italia",
+  "tipo": "Puerto",
+  "km": 18,
+  "archivo": "rutas/gavia.gpx",
+  "aprox": false
+ },
+ {
+  "id": "giau",
+  "nombre": "Passo Giau (desde Selva di Cadore)",
+  "pais": "Italia",
+  "tipo": "Puerto",
+  "km": 12.2,
+  "archivo": "rutas/giau.gpx",
+  "aprox": false
+ },
+ {
+  "id": "pordoi",
+  "nombre": "Passo Pordoi (desde Arabba)",
+  "pais": "Italia",
+  "tipo": "Puerto",
+  "km": 9.2,
+  "archivo": "rutas/pordoi.gpx",
+  "aprox": false
+ },
+ {
+  "id": "sella",
+  "nombre": "Passo Sella (desde Selva Val Gardena)",
+  "pais": "Italia",
+  "tipo": "Puerto",
+  "km": 10.9,
+  "archivo": "rutas/sella.gpx",
+  "aprox": false
+ },
+ {
+  "id": "angliru",
+  "nombre": "Alto de l'Angliru",
+  "pais": "España",
+  "tipo": "Puerto",
+  "km": 8.7,
+  "archivo": "rutas/angliru.gpx",
+  "aprox": false
+ },
+ {
+  "id": "covadonga",
+  "nombre": "Lagos de Covadonga",
+  "pais": "España",
+  "tipo": "Puerto",
+  "km": 21.7,
+  "archivo": "rutas/covadonga.gpx",
+  "aprox": false
+ },
+ {
+  "id": "sa-calobra",
+  "nombre": "Sa Calobra (Mallorca)",
+  "pais": "España",
+  "tipo": "Puerto",
+  "km": 15.3,
+  "archivo": "rutas/sa-calobra.gpx",
+  "aprox": false
+ },
+ {
+  "id": "teide",
+  "nombre": "El Teide (desde Vilaflor)",
+  "pais": "España",
+  "tipo": "Puerto",
+  "km": 22.4,
+  "archivo": "rutas/teide.gpx",
+  "aprox": false
+ },
+ {
+  "id": "mur-de-huy",
+  "nombre": "Mur de Huy",
+  "pais": "Bélgica",
+  "tipo": "Muro",
+  "km": 2.5,
+  "archivo": "rutas/mur-de-huy.gpx",
+  "aprox": false
+ },
+ {
+  "id": "cauberg",
+  "nombre": "Cauberg (Valkenburg)",
+  "pais": "Países Bajos",
+  "tipo": "Muro",
+  "km": 1.6,
+  "archivo": "rutas/cauberg.gpx",
+  "aprox": false
+ },
+ {
+  "id": "gf-7-lagos",
+  "nombre": "Gran Fondo 7 Lagos (aprox.)",
+  "pais": "Argentina",
+  "tipo": "Gran Fondo",
+  "km": 108.5,
+  "archivo": "rutas/gf-7-lagos.gpx",
+  "aprox": true
+ },
+ {
+  "id": "rio-pinto",
+  "nombre": "Desafío Río Pinto — sierras de La Cumbre (aprox.)",
+  "pais": "Argentina",
+  "tipo": "Gran Fondo",
+  "km": 20.2,
+  "archivo": "rutas/rio-pinto.gpx",
+  "aprox": true
+ },
+ {
+  "id": "gf-buenos-aires",
+  "nombre": "Gran Fondo Buenos Aires — Palermo a San Isidro (aprox.)",
+  "pais": "Argentina",
+  "tipo": "Gran Fondo",
+  "km": 30.9,
+  "archivo": "rutas/gf-buenos-aires.gpx",
+  "aprox": true
+ },
+ {
+  "id": "gf-punta-del-este",
+  "nombre": "Gran Fondo Punta del Este (aprox.)",
+  "pais": "Uruguay",
+  "tipo": "Gran Fondo",
+  "km": 42.6,
+  "archivo": "rutas/gf-punta-del-este.gpx",
+  "aprox": true
+ },
+ {
+  "id": "gf-mendoza",
+  "nombre": "Gran Fondo Mendoza — Cacheuta y Potrerillos (aprox.)",
+  "pais": "Argentina",
+  "tipo": "Gran Fondo",
+  "km": 57.2,
+  "archivo": "rutas/gf-mendoza.gpx",
+  "aprox": true
+ },
+ {
+  "id": "gf-carlos-paz",
+  "nombre": "Gran Fondo Villa Carlos Paz — Altas Cumbres (aprox.)",
+  "pais": "Argentina",
+  "tipo": "Gran Fondo",
+  "km": 62.9,
+  "archivo": "rutas/gf-carlos-paz.gpx",
+  "aprox": true
+ },
+ {
+  "id": "gf-san-luis",
+  "nombre": "Gran Fondo San Luis — Potrero de los Funes (aprox.)",
+  "pais": "Argentina",
+  "tipo": "Gran Fondo",
+  "km": 49.5,
+  "archivo": "rutas/gf-san-luis.gpx",
+  "aprox": true
+ },
+ {
+  "id": "cuesta-del-obispo",
+  "nombre": "Cuesta del Obispo (Salta)",
+  "pais": "Argentina",
+  "tipo": "Puerto",
+  "km": 36.7,
+  "archivo": "rutas/cuesta-del-obispo.gpx",
+  "aprox": false
+ },
+ {
+  "id": "alta-montana",
+  "nombre": "Alta Montaña — Uspallata a Las Cuevas",
+  "pais": "Argentina",
+  "tipo": "Puerto",
+  "km": 70.9,
+  "archivo": "rutas/alta-montana.gpx",
+  "aprox": false
+ },
+ {
+  "id": "villavicencio",
+  "nombre": "Caracoles de Villavicencio (Mendoza)",
+  "pais": "Argentina",
+  "tipo": "Puerto",
+  "km": 26.8,
+  "archivo": "rutas/villavicencio.gpx",
+  "aprox": false
+ },
+ {
+  "id": "cuesta-de-miranda",
+  "nombre": "Cuesta de Miranda (La Rioja)",
+  "pais": "Argentina",
+  "tipo": "Puerto",
+  "km": 100.4,
+  "archivo": "rutas/cuesta-de-miranda.gpx",
+  "aprox": false
+ },
+ {
+  "id": "sierra-de-la-ventana",
+  "nombre": "Sierra de la Ventana — Abra de la Ventana",
+  "pais": "Argentina",
+  "tipo": "Recorrido",
+  "km": 27.9,
+  "archivo": "rutas/sierra-de-la-ventana.gpx",
+  "aprox": false
+ },
+ {
+  "id": "tandil-sierras",
+  "nombre": "Tandil — vuelta por las sierras (aprox.)",
+  "pais": "Argentina",
+  "tipo": "Recorrido",
+  "km": 33.2,
+  "archivo": "rutas/tandil-sierras.gpx",
+  "aprox": true
+ }
+]

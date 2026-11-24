@@ -1,0 +1,19 @@
+{
+  "minutos_min": 3,
+  "minutos_max": 5,
+  "primer_cartel_segundos": 60,
+  "carteles": [
+    {
+      "id": "dr-aragon-prueba",
+      "tipo": "texto",
+      "fondo": "#0f2a44",
+      "acento": "#ff6a2b",
+      "texto_color": "#ffffff",
+      "titulo": "Dr. Sebastián Aragón",
+      "subtitulo": "Otorrinolaringólogo",
+      "linea3": "Cirugía endoscópica nasal",
+      "pie": "@dr._sebastian_aragon"
+    }
+  ],
+  "_ayuda": "Para una marca: agregá un objeto con \"tipo\": \"imagen\", \"id\" y \"imagen\": \"carteles/logo-marca.png\" (proporción 2:1, por ejemplo 1024x512). El id es el que aparece en las estadísticas."
+}

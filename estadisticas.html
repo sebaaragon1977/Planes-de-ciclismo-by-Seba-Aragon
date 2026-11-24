@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>RutaViva — Estadísticas</title>
+<meta name="robots" content="noindex">
+<style>
+:root{--bg:#0b0f14;--card:#121923;--line:#223042;--fg:#f3f6fa;--mut:#9fb0c3;--acc:#ff6a2b;--ok:#3ccf7a}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Arial,sans-serif}
+main{max-width:1100px;margin:0 auto;padding:24px 16px 60px}
+header{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:18px}
+.logo{width:40px;height:40px;border-radius:11px;background:linear-gradient(135deg,var(--acc),#ffb02b);display:grid;place-items:center;font-size:22px}
+h1{font-size:22px;margin:0}.mut{color:var(--mut);font-size:13px}
+header .sp{flex:1}
+button,select{background:#253041;color:var(--fg);border:1px solid rgba(255,255,255,.1);border-radius:9px;padding:7px 11px;font-size:13px;cursor:pointer}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:14px}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px}
+.kpi .v{font-size:30px;font-weight:750;font-variant-numeric:tabular-nums}.kpi .l{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--mut)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:12px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px;min-width:0}
+.card h2{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--mut);margin:0 0 10px}
+.bar{display:grid;grid-template-columns:minmax(90px,38%) 1fr 44px;align-items:center;gap:8px;margin:6px 0;font-size:14px}
+.bar .t{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bar .b{height:10px;border-radius:5px;background:linear-gradient(90deg,var(--acc),#ffb02b)}
+.bar .n{text-align:right;font-variant-numeric:tabular-nums;color:var(--mut)}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{text-align:left;padding:7px 6px;border-bottom:1px solid var(--line)}th{color:var(--mut);font-weight:600;font-size:12px}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+.scroll{max-height:360px;overflow:auto}
+.fb{border-bottom:1px solid var(--line);padding:9px 0}.fb:last-child{border:0}.fb .s{color:#ffc53d;letter-spacing:2px}.fb .c{margin:4px 0;font-size:14px;line-height:1.4}
+svg text{fill:var(--mut);font-size:11px}
+.empty{color:var(--mut);font-size:13px;padding:8px 0}
+#gate{max-width:440px;margin:12vh auto;text-align:center}
+.wide{grid-column:1/-1}
+@media (max-width:560px){.bar{grid-template-columns:110px 1fr 36px}}
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <div class="logo">🚴</div>
+    <div><h1>RutaViva · Estadísticas</h1><div class="mut" id="who"></div></div>
+    <div class="sp"></div>
+    <button id="btnCsv" style="display:none">⬇︎ Usuarios (CSV)</button>
+    <button id="btnReload" style="display:none">↻ Actualizar</button>
+  </header>
+  <div id="gate" style="display:none">
+    <p>Para ver las estadísticas entrá primero a la app con tu cuenta de administrador.</p>
+    <p><a href="./" style="color:var(--acc)">Ir a RutaViva</a></p>
+    <p class="mut" id="gateMsg"></p>
+  </div>
+  <div id="dash" style="display:none">
+    <div class="kpis" id="kpis"></div>
+    <div class="grid">
+      <div class="card wide"><h2>Ingresos por día (últimos 90 días)</h2><div id="chart"></div></div>
+      <div class="card"><h2>Usuarios por país</h2><div id="paises"></div></div>
+      <div class="card"><h2>Usuarios por ciudad</h2><div class="scroll" id="ciudades"></div></div>
+      <div class="card"><h2>Carteles: vistas</h2><div id="carteles"></div></div>
+      <div class="card"><h2>Rutas más pedaleadas</h2><div class="scroll" id="rutas"></div></div>
+      <div class="card"><h2>Opiniones</h2><div class="scroll" id="feedback"></div></div>
+      <div class="card"><h2>Últimos registros</h2><div class="scroll" id="usuarios"></div></div>
+    </div>
+  </div>
+</main>
+<script src="supabase.js"></script>
+<script>
+(() => {
+  const sb = supabase.createClient("https://aaabcjynoimkhrisyyhd.supabase.co", "sb_publishable_mDbzIy0nQiAptrw2qBaV5g_8mwpMv6q",
+    { auth: { persistSession: true, autoRefreshToken: true, storageKey: "rutaviva-auth" } });
+  const $ = (id) => document.getElementById(id);
+  const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  const fmt = (n) => Number(n || 0).toLocaleString("es-AR");
+  let data = null;
+
+  function bars(el, rows, label, val) {
+    if (!rows.length) { el.innerHTML = '<div class="empty">Todavía no hay datos.</div>'; return; }
+    const max = Math.max(...rows.map(val)) || 1;
+    el.innerHTML = rows.map((r) => `<div class="bar"><span class="t" title="${esc(label(r))}">${esc(label(r))}</span><span class="b" style="width:${Math.max(3, (val(r) / max) * 100)}%"></span><span class="n">${fmt(val(r))}</span></div>`).join("");
+  }
+  function table(el, head, rows) {
+    if (!rows.length) { el.innerHTML = '<div class="empty">Todavía no hay datos.</div>'; return; }
+    el.innerHTML = `<table><tr>${head.map((h) => `<th class="${h.num ? "num" : ""}">${h.t}</th>`).join("")}</tr>${rows.map((r) => `<tr>${r.map((c, i) => `<td class="${head[i].num ? "num" : ""}">${c}</td>`).join("")}</tr>`).join("")}</table>`;
+  }
+  function chart(el, rows) {
+    const W = el.clientWidth || 900, H = 180, P = 28;
+    const days = []; const today = new Date(); today.setHours(0, 0, 0, 0);
+    const map = new Map(rows.map((r) => [r.dia, r.n]));
+    for (let i = 89; i >= 0; i--) { const d = new Date(today); d.setDate(d.getDate() - i); const k = d.toISOString().slice(0, 10); days.push({ k, n: map.get(k) || 0 }); }
+    const max = Math.max(1, ...days.map((d) => d.n)), bw = (W - P) / days.length;
+    const barsSvg = days.map((d, i) => { const h = (d.n / max) * (H - 30); return `<rect x="${P + i * bw + 1}" y="${H - 18 - h}" width="${Math.max(1, bw - 2)}" height="${h}" rx="2" fill="#ff6a2b"><title>${d.k}: ${d.n}</title></rect>`; }).join("");
+    const ticks = [0, 30, 60, 89].map((i) => `<text x="${P + i * bw}" y="${H - 3}">${days[i].k.slice(5)}</text>`).join("");
+    el.innerHTML = `<svg width="100%" viewBox="0 0 ${W} ${H}" role="img" aria-label="Ingresos por día"><text x="0" y="12">${max}</text><line x1="${P}" x2="${W}" y1="${H - 18}" y2="${H - 18}" stroke="#223042"/>${barsSvg}${ticks}</svg>`;
+  }
+
+  function render() {
+    const d = data;
+    const kpis = [["Usuarios", d.usuarios], ["Ingresos", d.ingresos], ["Activos 30 días", d.activos_30d], ["Km pedaleados", d.km_totales], ["Horas pedaleadas", Math.round((d.minutos_totales || 0) / 60)], ["Opinión promedio", d.feedback_prom ? d.feedback_prom + " ★" : "—"]];
+    $("kpis").innerHTML = kpis.map(([l, v]) => `<div class="kpi"><div class="v">${typeof v === "number" ? fmt(v) : esc(v)}</div><div class="l">${l}</div></div>`).join("");
+    chart($("chart"), d.ingresos_por_dia || []);
+    bars($("paises"), d.por_pais || [], (r) => r.pais, (r) => r.n);
+    table($("ciudades"), [{ t: "Ciudad" }, { t: "País" }, { t: "Usuarios", num: 1 }], (d.por_ciudad || []).map((r) => [esc(r.ciudad), esc(r.pais), fmt(r.n)]));
+    table($("carteles"), [{ t: "Cartel" }, { t: "Vistas", num: 1 }, { t: "Personas", num: 1 }], (d.carteles || []).map((r) => [esc(r.cartel), fmt(r.vistas), fmt(r.usuarios)]));
+    table($("rutas"), [{ t: "Ruta" }, { t: "Salidas", num: 1 }, { t: "Km", num: 1 }], (d.rutas || []).map((r) => [esc(r.ruta), fmt(r.n), fmt(r.km)]));
+    const fb = d.feedback || [];
+    $("feedback").innerHTML = fb.length ? fb.map((f) => `<div class="fb"><span class="s">${"★".repeat(f.puntuacion || 0)}</span> <span class="mut">${esc(f.ciudad || "")}${f.pais ? ", " + esc(f.pais) : ""} · ${new Date(f.creado).toLocaleDateString("es-AR")}</span>${f.comentario ? `<div class="c">${esc(f.comentario)}</div>` : ""}</div>`).join("") : '<div class="empty">Todavía no hay opiniones.</div>';
+    table($("usuarios"), [{ t: "Email" }, { t: "Ciudad" }, { t: "País" }, { t: "Fecha" }], (d.usuarios_lista || []).map((u) => [esc(u.email), esc(u.ciudad), esc(u.pais), new Date(u.creado).toLocaleDateString("es-AR")]));
+  }
+
+  async function load() {
+    const { data: { session } } = await sb.auth.getSession();
+    if (!session) { $("gate").style.display = "block"; return; }
+    $("who").textContent = session.user.email;
+    const { data: r, error } = await sb.rpc("informe_rutaviva");
+    if (error) { $("gate").style.display = "block"; $("gateMsg").textContent = /autorizado/.test(error.message) ? "Esta cuenta no tiene acceso a las estadísticas." : "Error: " + error.message; return; }
+    data = r; $("dash").style.display = "block"; $("btnCsv").style.display = $("btnReload").style.display = "";
+    render();
+  }
+  $("btnReload").onclick = load;
+  $("btnCsv").onclick = () => {
+    const rows = [["email", "pais", "ciudad", "fecha"], ...(data.usuarios_lista || []).map((u) => [u.email, u.pais, u.ciudad, u.creado])];
+    const csv = rows.map((r) => r.map((c) => `"${String(c ?? "").replace(/"/g, '""')}"`).join(",")).join("\n");
+    const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob(["﻿" + csv], { type: "text/csv" })); a.download = "rutaviva_usuarios.csv"; a.click();
+  };
+  addEventListener("resize", () => data && chart($("chart"), data.ingresos_por_dia || []));
+  load();
+})();
+</script>
+</body>
+</html>
