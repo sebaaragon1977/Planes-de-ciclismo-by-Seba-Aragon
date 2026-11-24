@@ -528,6 +528,12 @@
     let u = b.x - a.x, w = b.z - a.z; const L = Math.hypot(u, w) || 1; u /= L; w /= L;
     return { p: R.Me(d), u, w };
   }
+  // Materiales con brillo y textura (mejoras3d.js); si no está, cae al material de siempre.
+  function fxMat(lambertOpts, stdOpts) {
+    const R = window.__R, fx = R && R.fx;
+    return fx ? fx.std(Object.assign({}, lambertOpts, stdOpts)) : new R.T.MeshLambertMaterial(lambertOpts);
+  }
+  function fxTex(name, rx, ry) { const fx = window.__R.fx; return fx ? fx.tex[name](rx, ry) : null; }
   function buildScenery() {
     const R = window.__R, T = R.T, s = S();
     if (!s.route || !s.heightFn) return null;
@@ -539,8 +545,8 @@
     const nPost = Math.min(8000, Math.floor(total / 50) * 2);
     const postGeo = new T.BoxGeometry(0.14, 1.0, 0.14); postGeo.translate(0, 0.5, 0);
     const reflGeo = new T.BoxGeometry(0.16, 0.16, 0.16); reflGeo.translate(0, 0.82, 0);
-    const posts = new T.InstancedMesh(postGeo, new T.MeshLambertMaterial({ color: 0xf2f2f2 }), nPost);
-    const refl = new T.InstancedMesh(reflGeo, new T.MeshBasicMaterial({ color: 0xff7a1a }), nPost);
+    const posts = new T.InstancedMesh(postGeo, fxMat({ color: 0xf2f2f2 }, { roughness: 0.3, map: fxTex("grain", 1, 2), envMapIntensity: 1.1 }), nPost);
+    const refl = new T.InstancedMesh(reflGeo, fxMat({ color: 0xff7a1a }, { emissive: 0xff5a00, emissiveIntensity: 0.8, roughness: 0.15, envMapIntensity: 1.4 }), nPost);
     for (let i = 0; i < nPost; i++) {
       const d = Math.floor(i / 2) * 50 + 25, side = i % 2 ? 1 : -1;
       const { p, u, w } = dirAt(d), off = (half + 0.9) * side, x = p.x - w * off, z = p.z + u * off;
@@ -551,7 +557,7 @@
 
     // Arbustos y matas cerca de la banquina
     const nB = Math.min(5000, Math.floor(total / 6));
-    const bushes = new T.InstancedMesh(new T.SphereGeometry(1, 7, 5), new T.MeshLambertMaterial({ color: 0xffffff }), nB);
+    const bushes = new T.InstancedMesh(new T.SphereGeometry(1, 9, 7), fxMat({ color: 0xffffff }, { roughness: 0.85, map: fxTex("leaves", 1, 1), bumpMap: fxTex("leaves", 1, 1), bumpScale: 1.5, envMapIntensity: 0.5 }), nB);
     for (let i = 0; i < nB; i++) {
       const d = rnd() * total, { p, u, w } = dirAt(d), side = rnd() < 0.5 ? -1 : 1;
       const off = (half + 2.2 + rnd() * 9) * side, x = p.x - w * off, z = p.z + u * off, r = 0.35 + rnd() * 0.9;
@@ -564,7 +570,8 @@
     // Mojones de kilómetro
     const kmGeo = new T.BoxGeometry(0.5, 0.9, 0.18); kmGeo.translate(0, 0.45, 0);
     const capGeo = new T.BoxGeometry(0.52, 0.22, 0.2); capGeo.translate(0, 0.98, 0);
-    const kmMat = new T.MeshLambertMaterial({ color: 0xffffff }), capMat = new T.MeshLambertMaterial({ color: 0xd8281e });
+    const kmMat = fxMat({ color: 0xf4f2ec }, { roughness: 0.85, map: fxTex("concrete", 1, 1), bumpMap: fxTex("concrete", 1, 1), bumpScale: 1.2 }),
+      capMat = fxMat({ color: 0xd8281e }, { roughness: 0.25, metalness: 0.05, envMapIntensity: 1.2 });
     const faceGeo = new T.PlaneGeometry(0.46, 0.5);
     for (let k = 1; k * 1000 < total; k++) {
       const { p, u, w } = dirAt(k * 1000), off = half + 1.6, x = p.x - w * off, z = p.z + u * off;
@@ -574,7 +581,7 @@
       const cx = cv.getContext("2d"); cx.fillStyle = "#fff"; cx.fillRect(0, 0, 128, 140); cx.fillStyle = "#111";
       cx.textAlign = "center"; cx.font = "bold 64px Arial"; cx.fillText(String(k), 64, 70); cx.font = "bold 34px Arial"; cx.fillText("km", 64, 118);
       const tx = new T.CanvasTexture(cv); tx.colorSpace = T.SRGB;
-      const face = new T.Mesh(faceGeo, new T.MeshBasicMaterial({ map: tx })); face.position.set(0, 0.45, 0.1);
+      const face = new T.Mesh(faceGeo, window.__R.fx ? fxMat({ map: tx }, { roughness: 0.4, emissive: 0xffffff, emissiveMap: tx, emissiveIntensity: 0.35 }) : new T.MeshBasicMaterial({ map: tx })); face.position.set(0, 0.45, 0.1);
       g.add(face);
       const back = R.Me(Math.max(0, k * 1000 - 30)); g.lookAt(back.x, g.position.y, back.z);
       grp.add(g);
@@ -635,7 +642,8 @@
     if (!adGeo) {
       const post = new T.CylinderGeometry(0.14, 0.18, 5.2, 8); post.translate(0, 2.6, 0);
       adGeo = { post, frame: new T.BoxGeometry(8.4, 4.4, 0.3), face: new T.PlaneGeometry(8, 4),
-        postMat: new T.MeshLambertMaterial({ color: 0x3a3f46 }), frameMat: new T.MeshLambertMaterial({ color: 0x1d2128 }) };
+        postMat: fxMat({ color: 0x8a9098 }, { metalness: 0.9, roughness: 0.32, map: fxTex("brushed", 1, 4), envMapIntensity: 1.3 }),
+        frameMat: fxMat({ color: 0x2a2f37 }, { metalness: 0.75, roughness: 0.3, map: fxTex("brushed", 3, 1), envMapIntensity: 1.2 }) };
     }
     const { p, u, w } = dirAt(d0), off = R.roadWidth / 2 + 5.5, x = p.x - w * off, z = p.z + u * off;
     const gy = s.heightFn ? s.heightFn(x, z) : p.y;
@@ -644,8 +652,9 @@
     const p2 = new T.Mesh(adGeo.post, adGeo.postMat); p2.position.x = 3.2;
     const fr = new T.Mesh(adGeo.frame, adGeo.frameMat); fr.position.y = 6.6;
     const tex = adTexture(ad);
-    const fc = new T.Mesh(adGeo.face, new T.MeshBasicMaterial({ map: tex })); fc.position.set(0, 6.6, 0.16);
-    const fb = new T.Mesh(adGeo.face, new T.MeshBasicMaterial({ map: tex })); fb.position.set(0, 6.6, -0.16); fb.rotation.y = Math.PI;
+    const faceMat = window.__R.fx ? fxMat({ map: tex }, { roughness: 0.35, emissive: 0xffffff, emissiveMap: tex, emissiveIntensity: 0.45, envMapIntensity: 0.8 }) : new T.MeshBasicMaterial({ map: tex });
+    const fc = new T.Mesh(adGeo.face, faceMat); fc.position.set(0, 6.6, 0.16);
+    const fb = new T.Mesh(adGeo.face, faceMat); fb.position.set(0, 6.6, -0.16); fb.rotation.y = Math.PI;
     g.add(p1, p2, fr, fc, fb);
     const tg = R.Me(Math.max(0, d0 - 45)); g.lookAt(tg.x, g.position.y, tg.z);
     world.add(g);
