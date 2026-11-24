@@ -152,14 +152,25 @@
     Bottle:  { roughness: 0.12, envMapIntensity: 1.3 },
     Tape:    { roughness: 0.75, bumpMap: () => tex.fabric(8, 2), bumpScale: 0.5 },
   };
-  function jerseyBack() {
-    // Torso: naranja con paneles oscuros y "RutaViva" en la espalda (u≈0.75 mira hacia atrás).
-    return canvasTex("jerseyback", 512, 256, (g, w, h) => {
-      g.fillStyle = "#ff6a2b"; g.fillRect(0, 0, w, h);
-      g.fillStyle = "#1d2733"; g.fillRect(w * 0.12, 0, w * 0.22, h); g.fillRect(w * 0.0, 0, w * 0.05, h); g.fillRect(w * 0.95, 0, w * 0.05, h);
-      g.fillStyle = "#ffffff"; g.fillRect(0, h * 0.62, w, 6);
+  // ───────────── Equipos (diseños propios, sin marcas) ─────────────
+  const KITS = [
+    { id: "rutaviva", es: "Naranja RutaViva", en: "RutaViva orange", pt: "Laranja RutaViva", base: "#ff6a2b", panel: "#1d2733", line: "#ffffff", text: "#ffffff", shorts: 0x131313 },
+    { id: "rojo",     es: "Rojo y negro",     en: "Red and black",   pt: "Vermelho e preto", base: "#c8102e", panel: "#111111", line: "#ffffff", text: "#ffffff", shorts: 0x111111 },
+    { id: "azul",     es: "Azul y celeste",   en: "Blue and sky blue", pt: "Azul e celeste", base: "#0a3d91", panel: "#7fc4ff", line: "#ffffff", text: "#ffffff", shorts: 0x0b1a33 },
+    { id: "amarillo", es: "Negro y amarillo", en: "Black and yellow", pt: "Preto e amarelo", base: "#151515", panel: "#ffd400", line: "#ffd400", text: "#ffd400", shorts: 0x111111 },
+    { id: "celeste",  es: "Blanco y celeste", en: "White and sky blue", pt: "Branco e celeste", base: "#f2f4f7", panel: "#5fb4e8", line: "#1d2733", text: "#1d2733", shorts: 0x1d2733 },
+    { id: "verde",    es: "Verde y blanco",   en: "Green and white", pt: "Verde e branco",   base: "#0f7a3d", panel: "#ffffff", line: "#ffffff", text: "#ffffff", shorts: 0x0d2a18 },
+  ];
+  const kitById = (id) => KITS.find((k) => k.id === id) || KITS[0];
+  let kit = kitById((() => { try { return localStorage.getItem("rv_kit"); } catch { return null; } })());
+  function jerseyBack(k) {
+    // Torso: color base con paneles y "RutaViva" en la espalda (u≈0.75 mira hacia atrás).
+    return canvasTex("jerseyback-" + k.id, 512, 256, (g, w, h) => {
+      g.fillStyle = k.base; g.fillRect(0, 0, w, h);
+      g.fillStyle = k.panel; g.fillRect(w * 0.12, 0, w * 0.22, h); g.fillRect(w * 0.0, 0, w * 0.05, h); g.fillRect(w * 0.95, 0, w * 0.05, h);
+      g.fillStyle = k.line; g.fillRect(0, h * 0.62, w, 6);
       g.save(); g.translate(w * 0.75, h * 0.45); g.scale(1, 1.6); g.textAlign = "center"; g.textBaseline = "middle";
-      g.font = "bold 30px Arial"; g.fillText("RutaViva", 0, 0); g.restore();
+      g.fillStyle = k.text; g.font = "bold 30px Arial"; g.fillText("RutaViva", 0, 0); g.restore();
       for (let y = 0; y < h; y += 2) { g.fillStyle = "rgba(0,0,0,.05)"; g.fillRect(0, y, w, 1); }
     });
   }
@@ -177,10 +188,41 @@
   function upgradeRider() {
     const rider = R.rider; if (!rider) return;
     rider.traverse((o) => { if (o.isMesh && o.material && !Array.isArray(o.material)) o.material = upgradeMat(o.material); });
-    const chest = rider.userData && rider.userData.chest;
-    if (chest) chest.material = std({ name: "JerseyBack", map: jerseyBack(), roughness: 0.6, bumpMap: tex.fabric(6, 6), bumpScale: 0.3 });
+    applyKit(kit);
   }
+  function riderMats() {
+    const out = {}; R.rider.traverse((o) => { if (o.isMesh && o.material && o.material.name) out[o.material.name] = o.material; }); return out;
+  }
+  function applyKit(k) {
+    kit = k; try { localStorage.setItem("rv_kit", k.id); } catch {}
+    const m = riderMats();
+    if (m.Jersey) m.Jersey.color.set(k.base);
+    if (m.Jersey2) m.Jersey2.color.set(k.panel);
+    if (m.Shorts) m.Shorts.color.setHex(k.shorts);
+    const chest = R.rider.userData && R.rider.userData.chest;
+    if (chest) {
+      if (!chest.material || chest.material.name !== "JerseyBack") chest.material = std({ name: "JerseyBack", roughness: 0.6, bumpMap: tex.fabric(6, 6), bumpScale: 0.3 });
+      chest.material.map = jerseyBack(k); chest.material.needsUpdate = true;
+    }
+  }
+  R.fx.kits = KITS; R.fx.applyKit = (id) => applyKit(kitById(id));
   try { upgradeRider(); } catch (e) { console.warn("[mejoras3d] ciclista", e); }
+
+  // Selector de equipo en el panel (sección Simulación)
+  function addKitPicker() {
+    if (document.getElementById("rvKit")) return;
+    const anchor = document.getElementById("numRider"); if (!anchor) return;
+    const row = anchor.closest(".row"); if (!row) return;
+    let lang = "es"; try { lang = localStorage.getItem("rv_lang") || (navigator.language || "es").slice(0, 2); } catch {}
+    if (!["es", "en", "pt"].includes(lang)) lang = "es";
+    const label = { es: "Ropa", en: "Kit", pt: "Roupa" }[lang];
+    const wrap = document.createElement("div"); wrap.className = "row rv-own";
+    wrap.innerHTML = `<label>${label} <select id="rvKit">${KITS.map((k) => `<option value="${k.id}">${k[lang]}</option>`).join("")}</select></label>`;
+    row.after(wrap);
+    const sel = wrap.querySelector("select"); sel.value = kit.id;
+    sel.onchange = () => applyKit(kitById(sel.value));
+  }
+  addKitPicker();
 
   // ───────────── Árboles de la app (troncos y copas instanciados) ─────────────
   let lastWorld = null;
