@@ -339,11 +339,11 @@
     mat.onBeforeCompile = (sh) => {
       sh.vertexShader = sh.vertexShader.replace("#include <project_vertex>", `#include <project_vertex>
         { float dist = length(mvPosition.xyz);
-          float pull = min(0.5 * dist, 2.5 + 0.035 * dist);
+          float pull = clamp((dist - 15.0) * 0.03, 0.0, 4.0); // nada cerca de la cámara: no tapa las piernas ni las ruedas
           vec3 mvPull = mvPosition.xyz * (1.0 - pull / max(dist, 0.001));
           gl_Position = projectionMatrix * vec4(mvPull, 1.0); }`);
     };
-    mat.customProgramCacheKey = () => "road-pull";
+    mat.customProgramCacheKey = () => "road-pull-2";
     return mat;
   }
 
