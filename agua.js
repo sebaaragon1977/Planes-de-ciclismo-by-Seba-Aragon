@@ -93,7 +93,7 @@
   // ───────────── Construcción ─────────────
   function terrainMesh(world) {
     let best = null;
-    world.traverse((o) => { if (o.isMesh && !o.isInstancedMesh && o.geometry.type === "PlaneGeometry") { if (!o.geometry.boundingSphere) o.geometry.computeBoundingSphere(); const r = o.geometry.boundingSphere.radius; if (r > 400 && r < 50000 && (!best || r > best.geometry.boundingSphere.radius)) best = o; } });
+    world.traverse((o) => { if (o.isMesh && !o.isInstancedMesh && o.geometry.type === "PlaneGeometry") { if (!o.geometry.boundingSphere) o.geometry.computeBoundingSphere(); const r = o.geometry.boundingSphere.radius; if (r > 400 && o.geometry.attributes.position.count > 4 && (!best || r > best.geometry.boundingSphere.radius)) best = o; } });
     return best;
   }
   function polygonsFrom(data) {

@@ -266,11 +266,12 @@
   }
   function upgradeGround(o) {
     const m = o.material, p = o.geometry.parameters || {}, size = Math.max(p.width || 0, p.height || 0) || 2 * o.geometry.boundingSphere.radius;
-    if (size > 50000) { // plano lejano
+    const farPlane = o.geometry.attributes.position.count <= 4;
+    if (farPlane) { // plano lejano (4 puntos), no el terreno
       o.material = std({ color: m.color, map: grassTex(Math.round(size / 60)), roughness: 1, side: m.side }); o.receiveShadow = true; return;
     }
     const tiles = document.getElementById("chkTiles");
-    if (!m.map && tiles && tiles.checked && size < 50000 && !o.userData.rvWait) { o.userData.rvWait = performance.now(); return; }
+    if (!m.map && tiles && tiles.checked && !o.userData.rvWait) { o.userData.rvWait = performance.now(); return; }
     if (!m.map && o.userData.rvWait && performance.now() - o.userData.rvWait < 8000) return; // esperando la imagen satelital
     const map = m.map || grassTex(Math.round(size / 9));
     const nm = std({ color: m.map ? new Color(1.04, 1.06, 1.0) : new Color(0xffffff), map, roughness: 0.96, envMapIntensity: 0.4, side: m.side, polygonOffset: m.polygonOffset, polygonOffsetFactor: m.polygonOffsetFactor, polygonOffsetUnits: m.polygonOffsetUnits });
