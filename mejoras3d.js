@@ -190,22 +190,28 @@
     rider.traverse((o) => { if (o.isMesh && o.material && !Array.isArray(o.material)) o.material = upgradeMat(o.material); });
     applyKit(kit);
   }
-  function riderMats() {
-    const out = {}; R.rider.traverse((o) => { if (o.isMesh && o.material && o.material.name) out[o.material.name] = o.material; }); return out;
+  function riderMats(root) {
+    const out = {}; root.traverse((o) => { if (o.isMesh && o.material && o.material.name) out[o.material.name] = o.material; }); return out;
   }
-  function applyKit(k) {
-    kit = k; try { localStorage.setItem("rv_kit", k.id); } catch {}
-    const m = riderMats();
+  function applyKit(k) { kit = k; try { localStorage.setItem("rv_kit", k.id); } catch {} applyKitTo(R.rider, k); }
+  function applyKitTo(root, k) {
+    const m = riderMats(root);
     if (m.Jersey) m.Jersey.color.set(k.base);
     if (m.Jersey2) m.Jersey2.color.set(k.panel);
     if (m.Shorts) m.Shorts.color.setHex(k.shorts);
-    const chest = R.rider.userData && R.rider.userData.chest;
+    const chest = root.userData && root.userData.chest;
     if (chest) {
       if (!chest.material || chest.material.name !== "JerseyBack") chest.material = std({ name: "JerseyBack", roughness: 0.6, bumpMap: tex.fabric(6, 6), bumpScale: 0.3 });
       chest.material.map = jerseyBack(k); chest.material.needsUpdate = true;
     }
   }
   R.fx.kits = KITS; R.fx.applyKit = (id) => applyKit(kitById(id));
+  R.fx.currentKit = () => kit.id;
+  // Viste a otro ciclista (los de "rodar con otros") con materiales con brillo y la camiseta pedida.
+  R.fx.dressRider = (root, kitId) => {
+    root.traverse((o) => { if (o.isMesh && o.material && !Array.isArray(o.material)) { o.material = upgradeMat(o.material); o.castShadow = true; } });
+    applyKitTo(root, kitById(kitId));
+  };
   try { upgradeRider(); } catch (e) { console.warn("[mejoras3d] ciclista", e); }
 
   // Selector de equipo en el panel (sección Simulación)

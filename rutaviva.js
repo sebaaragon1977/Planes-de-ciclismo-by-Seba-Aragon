@@ -237,6 +237,7 @@
 
   // ───────────────────────── Supabase ─────────────────────────
   let sb = null, user = null, profile = null;
+  window.__RV = { get sb() { return sb; }, get user() { return user; }, get profile() { return profile; } };
   try {
     if (window.supabase && window.supabase.createClient) {
       sb = window.supabase.createClient(SUPA_URL, SUPA_KEY, {
