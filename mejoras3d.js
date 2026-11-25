@@ -240,4 +240,152 @@
       if (w && w !== lastWorld) { lastWorld = w; setTimeout(() => upgradeTrees(w), 300); }
     } catch (e) { console.warn("[mejoras3d] árboles", e); }
   }, 1000);
+
+  // ───────────── Sol según la ubicación de la ruta y la hora, y sombras ─────────────
+  const sun = R.sun, hemi = R.hemi, S = window.__S;
+  const D2R = Math.PI / 180;
+  // Posición solar (algoritmo NOAA simplificado). Devuelve azimut (desde el norte, horario) y elevación, en radianes.
+  function solarPosition(date, lat, lon) {
+    const jd = date.getTime() / 86400000 + 2440587.5, n = jd - 2451545.0;
+    const L = (280.46 + 0.9856474 * n) % 360, g = ((357.528 + 0.9856003 * n) % 360) * D2R;
+    const lambda = (L + 1.915 * Math.sin(g) + 0.02 * Math.sin(2 * g)) * D2R, eps = (23.439 - 0.0000004 * n) * D2R;
+    const ra = Math.atan2(Math.cos(eps) * Math.sin(lambda), Math.cos(lambda)), dec = Math.asin(Math.sin(eps) * Math.sin(lambda));
+    const gmst = (18.697374558 + 24.06570982441908 * n) % 24, lst = (gmst * 15 + lon) * D2R, ha = lst - ra, phi = lat * D2R;
+    const el = Math.asin(Math.sin(phi) * Math.sin(dec) + Math.cos(phi) * Math.cos(dec) * Math.cos(ha));
+    const az = Math.atan2(-Math.sin(ha), Math.tan(dec) * Math.cos(phi) - Math.sin(phi) * Math.cos(ha));
+    return { az: (az + 2 * Math.PI) % (2 * Math.PI), el };
+  }
+  // Hora del GPX (si el archivo trae <time>): inicio y fin de la actividad
+  let gpxTime = null;
+  function readGpxTime(file) {
+    if (!file || !file.text) return;
+    file.text().then((t) => {
+      const ts = t.match(/<time>([^<]+)<\/time>/g) || [];
+      const times = ts.map((x) => Date.parse(x.slice(6, -7))).filter(isFinite);
+      // el primer <time> suele ser el de metadata: tomamos los de los puntos si hay más de uno
+      gpxTime = times.length >= 2 ? { start: times[1] || times[0], end: times[times.length - 1] } : times.length ? { start: times[0], end: times[0] } : null;
+      updateSun(true);
+    }).catch(() => { gpxTime = null; });
+  }
+  const origLoad = R.loadGpxFile;
+  if (origLoad) R.loadGpxFile = function (f, ...rest) { gpxTime = null; readGpxTime(f); return origLoad.call(this, f, ...rest); };
+  const fileIn = document.getElementById("fileGpx");
+  if (fileIn) fileIn.addEventListener("change", () => { gpxTime = null; readGpxTime(fileIn.files && fileIn.files[0]); });
+  addEventListener("drop", (e) => { const f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]; if (f && /\.gpx$/i.test(f.name)) { gpxTime = null; readGpxTime(f); } }, true);
+
+  const SUN_MODES = ["auto", "07:30", "10:00", "13:00", "17:00", "19:30"];
+  let sunMode = (() => { try { return localStorage.getItem("rv_sol") || "auto"; } catch { return "auto"; } })();
+  if (!SUN_MODES.includes(sunMode)) sunMode = "auto";
+  let shadowsOn = (() => { try { return localStorage.getItem("rv_sombras") !== "0"; } catch { return true; } })();
+
+  // Hora local "de la ruta": la hora del reloj (o la elegida) interpretada en el huso de la ruta (≈ longitud/15).
+  function sunDate(lat, lon) {
+    if (sunMode === "auto" && gpxTime) {
+      const f = S.route && S.route.total ? Math.min(1, Math.max(0, S.d / S.route.total)) : 0;
+      return new Date(gpxTime.start + (gpxTime.end - gpxTime.start) * f);
+    }
+    const now = new Date();
+    let hh = now.getHours(), mm = now.getMinutes();
+    if (sunMode !== "auto") { [hh, mm] = sunMode.split(":").map(Number); }
+    const tz = routeTz(lat, lon, now);
+    return new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate(), hh - tz, mm));
+  }
+  // Huso horario aproximado de la ruta: si queda cerca del usuario usa el de su reloj (Argentina es UTC−3 aunque
+  // por longitud sería −4); Europa usa hora central (+1, +2 en verano); si no, longitud/15.
+  function routeTz(lat, lon, now) {
+    const mine = -now.getTimezoneOffset() / 60, geo = Math.round(lon / 15);
+    if (Math.abs(geo - mine) <= 1) return mine;
+    if (lat > 35 && lat < 72 && lon > -10 && lon < 30) { const m = now.getUTCMonth(); return lon < -3 ? (m >= 3 && m <= 9 ? 1 : 0) : (m >= 3 && m <= 9 ? 2 : 1); }
+    return geo;
+  }
+  const sunDir = new T.Vector3(0.45, 0.75, 0.3).normalize();
+  const cWhite = new Color(0xffffff), cWarm = new Color(0xffb46b), cNight = new Color(0x9fb4ff);
+  let sunInfo = "";
+  function updateSun() {
+    const o = S && S.origin; if (!o || !sun) return;
+    const p = solarPosition(sunDate(o.lat, o.lon), o.lat, o.lon);
+    const night = p.el < 0.035, el = Math.max(p.el, 0.035);
+    // escena: x = este, -z = norte, y = arriba
+    sunDir.set(Math.sin(p.az) * Math.cos(el), Math.sin(el), -Math.cos(p.az) * Math.cos(el)).normalize();
+    const k = Math.min(1, el / (25 * D2R)); // 0 al amanecer, 1 con el sol alto
+    sun.color.copy(night ? cNight : cWarm).lerp(cWhite, night ? 0 : k);
+    sun.intensity = night ? 0.4 : 0.95 + 0.85 * k;
+    if (hemi) hemi.intensity = night ? 0.8 : 0.7 + 0.25 * k;
+    const deg = Math.round(p.el / D2R), az = Math.round(p.az / D2R);
+    const card = ["N", "NE", "E", "SE", "S", "SO", "O", "NO"][Math.round(az / 45) % 8];
+    sunInfo = night ? "de noche (sol bajo el horizonte)" : `sol a ${deg}° de altura, hacia el ${card}`;
+    const info = document.getElementById("rvSunInfo"); if (info) info.textContent = sunInfo + (sunMode === "auto" && gpxTime ? " · hora del GPX" : "");
+  }
+
+  // Sombras: un mapa de sombras que sigue al ciclista
+  const SH = 50, MAP = 2048;
+  R.renderer.shadowMap.enabled = true;
+  R.renderer.shadowMap.type = 2; // PCFSoftShadowMap
+  if (sun) {
+    sun.castShadow = shadowsOn;
+    sun.shadow.mapSize.set(MAP, MAP);
+    const c = sun.shadow.camera; c.left = -SH; c.right = SH; c.top = SH; c.bottom = -SH; c.near = 1; c.far = 900; c.updateProjectionMatrix();
+    sun.shadow.bias = -0.0004; sun.shadow.normalBias = 0.04;
+    R.scene.add(sun.target);
+  }
+  R.rider.traverse((o) => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = false; } });
+  const center = new T.Vector3(), tmp = new T.Vector3(), right = new T.Vector3(), up = new T.Vector3(), Y = new T.Vector3(0, 1, 0);
+  function followSun() {
+    if (!sun) return;
+    R.rider.getWorldPosition(center);
+    // fijar el centro a la grilla de texeles de la sombra para que no "tiemble" al avanzar
+    right.crossVectors(Y, sunDir).normalize(); up.crossVectors(sunDir, right).normalize();
+    const texel = (2 * SH) / MAP, a = Math.round(center.dot(right) / texel) * texel, b = Math.round(center.dot(up) / texel) * texel, cz = center.dot(sunDir);
+    center.copy(right).multiplyScalar(a).addScaledVector(up, b).addScaledVector(sunDir, cz);
+    sun.target.position.copy(center); sun.position.copy(center).addScaledVector(sunDir, 400);
+    sun.target.updateMatrixWorld();
+  }
+  let shadowWorld = null, lastCount = -1;
+  function markShadows(w) {
+    let count = 0;
+    w.traverse((o) => {
+      if (!o.isMesh) return; count++;
+      if (!o.geometry.boundingSphere) o.geometry.computeBoundingSphere();
+      const big = !o.isInstancedMesh && o.geometry.boundingSphere && o.geometry.boundingSphere.radius > 60;
+      if (big) { o.receiveShadow = true; o.castShadow = false; }   // terreno y ruta: reciben sombra
+      else { o.castShadow = true; o.receiveShadow = false; }       // árboles, balizas, mojones, carteles: proyectan
+    });
+    return count;
+  }
+  setInterval(() => {
+    try {
+      const w = R.world && R.world(); if (!w) return;
+      let n = 0; w.traverse(() => n++);
+      if (w !== shadowWorld || n !== lastCount) { shadowWorld = w; lastCount = n; markShadows(w); }
+    } catch (e) { console.warn("[mejoras3d] sombras", e); }
+  }, 1500);
+  let lastSunUpdate = 0, lastOrigin = null;
+  function sunLoop(t) {
+    try {
+      if (S && S.origin !== lastOrigin) { lastOrigin = S.origin; updateSun(); lastSunUpdate = t; }
+      if (t - lastSunUpdate > 5000) { updateSun(); lastSunUpdate = t; }
+      followSun();
+    } catch (e) { console.warn("[mejoras3d] sol", e); }
+    requestAnimationFrame(sunLoop);
+  }
+  requestAnimationFrame(sunLoop);
+
+  // Controles en el panel: hora del sol y sombras
+  function addSunControls() {
+    if (document.getElementById("rvSol")) return;
+    const kitRow = document.getElementById("rvKit"); if (!kitRow) return;
+    let lang = "es"; try { lang = localStorage.getItem("rv_lang") || (navigator.language || "es").slice(0, 2); } catch {}
+    if (!["es", "en", "pt"].includes(lang)) lang = "es";
+    const L = { es: ["Sol", "Hora actual / del GPX", "Sombras"], en: ["Sun", "Current time / GPX time", "Shadows"], pt: ["Sol", "Hora atual / do GPX", "Sombras"] }[lang];
+    const wrap = document.createElement("div"); wrap.className = "rv-own";
+    wrap.innerHTML = `<div class="row"><label>${L[0]} <select id="rvSol">${SUN_MODES.map((m) => `<option value="${m}">${m === "auto" ? L[1] : m}</option>`).join("")}</select></label>
+      <label><input type="checkbox" id="rvSombras"> ${L[2]}</label></div><div class="st" id="rvSunInfo"></div>`;
+    kitRow.closest(".row").after(wrap);
+    const sel = wrap.querySelector("#rvSol"), chk = wrap.querySelector("#rvSombras");
+    sel.value = sunMode; chk.checked = shadowsOn;
+    sel.onchange = () => { sunMode = sel.value; try { localStorage.setItem("rv_sol", sunMode); } catch {} updateSun(); };
+    chk.onchange = () => { shadowsOn = chk.checked; try { localStorage.setItem("rv_sombras", shadowsOn ? "1" : "0"); } catch {} if (sun) sun.castShadow = shadowsOn; };
+    updateSun();
+  }
+  addSunControls();
 })();
