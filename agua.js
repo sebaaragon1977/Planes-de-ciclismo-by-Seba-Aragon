@@ -35,9 +35,9 @@
     if (waterMat) return waterMat;
     normalTex = waterNormalMap(); normalTex.repeat.set(1, 1);
     const Std = R.fx && R.fx.MeshStandardMaterial;
-    waterMat = Std ? new Std({ color: 0x24566b, roughness: 0.06, metalness: 0.1, envMapIntensity: 1.35, normalMap: normalTex, side: 2, polygonOffset: true, polygonOffsetFactor: -1, polygonOffsetUnits: -2 })
+    waterMat = Std ? new Std({ color: 0x0b3d55, roughness: 0.13, metalness: 0.0, envMapIntensity: 0.8, normalMap: normalTex, side: 2, polygonOffset: true, polygonOffsetFactor: -1, polygonOffsetUnits: -2 })
                    : new T.MeshLambertMaterial({ color: 0x2b6178 });
-    if (Std) waterMat.normalScale.set(0.55, 0.55);
+    if (Std) waterMat.normalScale.set(0.45, 0.45);
     return waterMat;
   }
   // olas en movimiento
