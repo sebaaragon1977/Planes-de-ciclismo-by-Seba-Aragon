@@ -120,9 +120,9 @@
       for (let i = 0; i < 90; i++) { const x = r() * w, ww = 1 + r() * 4; g.fillStyle = grey(90 + r() * 90); g.fillRect(x, 0, ww, h); }
       for (let i = 0; i < 200; i++) { g.fillStyle = grey(60 + r() * 60); g.fillRect(r() * w, r() * h, 2 + r() * 6, 1 + r() * 2); }
     }, rx, ry),
-    leaves: (rx = 1, ry = 1) => canvasTex("leaves", 256, 256, (g, w, h) => {
+    leaves: (rx = 1, ry = 1) => canvasTex("leaves", 512, 512, (g, w, h) => {
       const r = rand(31); g.fillStyle = grey(190); g.fillRect(0, 0, w, h);
-      for (let i = 0; i < 2600; i++) { const x = r() * w, y = r() * h, s = 2 + r() * 7; g.fillStyle = grey(140 + r() * 115); g.beginPath(); g.ellipse(x, y, s, s * 0.55, r() * 3.14, 0, 6.283); g.fill(); }
+      for (let i = 0; i < 10400; i++) { const x = r() * w, y = r() * h, s = 2 + r() * 7; g.fillStyle = grey(140 + r() * 115); g.beginPath(); g.ellipse(x, y, s, s * 0.55, r() * 3.14, 0, 6.283); g.fill(); }
     }, rx, ry),
     rubber: (rx = 1, ry = 1) => canvasTex("rubber", 64, 64, (g, w, h) => { g.fillStyle = grey(225); g.fillRect(0, 0, w, h); grain(g, w, h, 1200, 150, 255, rand(41), 1); }, rx, ry),
   };
@@ -270,33 +270,53 @@
     const nm = std({ color: m.map ? new Color(1.04, 1.06, 1.0) : new Color(0xffffff), map, roughness: 0.96, envMapIntensity: 0.4, side: m.side, polygonOffset: m.polygonOffset, polygonOffsetFactor: m.polygonOffsetFactor, polygonOffsetUnits: m.polygonOffsetUnits });
     addDetail(nm, size / (m.map ? 3.5 : 3.5 * (size / 9) ), m.map ? 0.55 : 0.4);
     o.material = nm; o.receiveShadow = true;
+    try { carveUnderRoad(o); } catch (e) { console.warn("[mejoras3d] terreno bajo la ruta", e); }
+  }
+
+  // Hunde el terreno pegado a la ruta para que nunca la tape (el relieve tiene un punto cada ~17–30 m).
+  function carveUnderRoad(o) {
+    const rt = S && S.route; if (!rt || !rt.x || !rt.ele) return;
+    const CELL = 20, grid = new Map(), key = (i, j) => i * 100003 + j;
+    for (let i = 0; i < rt.n; i++) { const k = key(Math.floor(rt.x[i] / CELL), Math.floor(rt.z[i] / CELL)); let a = grid.get(k); if (!a) grid.set(k, (a = [])); a.push(i); }
+    o.updateMatrixWorld(); const inv = o.matrixWorld.clone().invert(), v = new T.Vector3(), p = o.geometry.attributes.position;
+    const R0 = (R.roadWidth || 6) / 2 + 5, R1 = R0 + 18; let changed = 0;
+    for (let k = 0; k < p.count; k++) {
+      v.fromBufferAttribute(p, k).applyMatrix4(o.matrixWorld);
+      const ci = Math.floor(v.x / CELL), cj = Math.floor(v.z / CELL); let best = 1e9, bi = -1;
+      for (let di = -1; di <= 1; di++) for (let dj = -1; dj <= 1; dj++) { const a = grid.get(key(ci + di, cj + dj)); if (a) for (const i of a) { const d = (rt.x[i] - v.x) ** 2 + (rt.z[i] - v.z) ** 2; if (d < best) { best = d; bi = i; } } }
+      if (bi < 0) continue; const d = Math.sqrt(best);
+      if (d > R1) continue;
+      const roadY = rt.ele[bi] + 0.25, limit = d <= R0 ? roadY - 0.45 : roadY - 0.45 + (d - R0) * 0.9; // pendiente suave hacia afuera
+      if (v.y > limit) { v.y = limit; v.applyMatrix4(inv); p.setY(k, v.y); changed++; }
+    }
+    if (changed) { p.needsUpdate = true; o.geometry.computeVertexNormals(); o.geometry.computeBoundingSphere(); }
   }
 
   // ───────────── Ruta: asfalto en alta resolución con brillo en las huellas ─────────────
   // Misma disposición que la textura original (64×256 → 512×2048): bordes blancos y línea central discontinua.
   function asphaltCanvases() {
-    const W = 512, H = 2048, r = rand(123);
+    const W = 1024, H = 4096, r = rand(123), K = 2; // el doble de resolución que antes
     const col = document.createElement("canvas"), rgh = document.createElement("canvas"); col.width = rgh.width = W; col.height = rgh.height = H;
     const g = col.getContext("2d"), q = rgh.getContext("2d");
     g.fillStyle = "#34373c"; g.fillRect(0, 0, W, H); q.fillStyle = grey(225); q.fillRect(0, 0, W, H);
     // manchas y parches de reparación
-    for (let i = 0; i < 26; i++) { const x = 40 + r() * (W - 80), y = r() * H, ww = 40 + r() * 140, hh = 60 + r() * 260, v = 38 + r() * 18; g.fillStyle = `rgba(${v},${v},${v + 3},.55)`; g.fillRect(x, y, ww, hh); }
+    for (let i = 0; i < 40; i++) { const x = 80 + r() * (W - 160), y = r() * H, ww = 80 + r() * 280, hh = 120 + r() * 520, v = 38 + r() * 18; g.fillStyle = `rgba(${v},${v},${v + 3},.55)`; g.fillRect(x, y, ww, hh); }
     // huellas de neumáticos: más oscuras y más lisas (brillan)
     for (const u of [0.27, 0.40, 0.60, 0.73]) {
       const lg = g.createLinearGradient(W * (u - 0.07), 0, W * (u + 0.07), 0); lg.addColorStop(0, "rgba(20,20,22,0)"); lg.addColorStop(0.5, "rgba(20,20,22,.35)"); lg.addColorStop(1, "rgba(20,20,22,0)"); g.fillStyle = lg; g.fillRect(W * (u - 0.07), 0, W * 0.14, H);
       const lq = q.createLinearGradient(W * (u - 0.07), 0, W * (u + 0.07), 0); lq.addColorStop(0, "rgba(130,130,130,0)"); lq.addColorStop(0.5, "rgba(130,130,130,.85)"); lq.addColorStop(1, "rgba(130,130,130,0)"); q.fillStyle = lq; q.fillRect(W * (u - 0.07), 0, W * 0.14, H);
     }
     // grano: piedritas claras y oscuras
-    for (let i = 0; i < 160000; i++) { const v = r() < 0.5 ? 20 + r() * 25 : 75 + r() * 70; g.fillStyle = `rgb(${v | 0},${v | 0},${(v + 2) | 0})`; g.fillRect(r() * W, r() * H, r() < 0.9 ? 1 : 2, r() < 0.9 ? 1 : 2); }
+    for (let i = 0; i < 640000; i++) { const v = r() < 0.5 ? 20 + r() * 25 : 75 + r() * 70; g.fillStyle = `rgb(${v | 0},${v | 0},${(v + 2) | 0})`; g.fillRect(r() * W, r() * H, r() < 0.9 ? 1 : 2, r() < 0.9 ? 1 : 2); }
     // grietas finas
     g.strokeStyle = "rgba(15,15,16,.7)"; g.lineWidth = 1.2;
-    for (let i = 0; i < 14; i++) { let x = 60 + r() * (W - 120), y = r() * H; g.beginPath(); g.moveTo(x, y); for (let k = 0; k < 12; k++) { x += (r() - 0.5) * 18; y += 6 + r() * 14; g.lineTo(x, y); } g.stroke(); }
+    for (let i = 0; i < 24; i++) { let x = 120 + r() * (W - 240), y = r() * H; g.beginPath(); g.moveTo(x, y); for (let k = 0; k < 14; k++) { x += (r() - 0.5) * 36; y += 12 + r() * 28; g.lineTo(x, y); } g.stroke(); }
     // pintura (bordes y centro) con desgaste
     const paint = (x0, x1, y0, y1, color) => {
       g.fillStyle = color; g.fillRect(x0, y0, x1 - x0, y1 - y0); q.fillStyle = grey(110); q.fillRect(x0, y0, x1 - x0, y1 - y0);
       for (let i = 0; i < (x1 - x0) * (y1 - y0) / 18; i++) { g.fillStyle = `rgba(52,55,60,${0.3 + r() * 0.5})`; g.fillRect(x0 + r() * (x1 - x0), y0 + r() * (y1 - y0), 1 + r() * 2, 1 + r() * 2); }
     };
-    paint(24, 40, 0, H, "#e6e6e3"); paint(472, 488, 0, H, "#e6e6e3"); paint(248, 264, 0, H / 2, "#f0c443");
+    paint(48, 80, 0, H, "#e6e6e3"); paint(944, 976, 0, H, "#e6e6e3"); paint(496, 528, 0, H / 2, "#f0c443");
     return { col, rgh };
   }
   let roadMats = null;
@@ -307,7 +327,18 @@
       const map = mk(col, true), rough = mk(rgh, false);
       roadMats = { map, rough };
     }
-    return std({ map: roadMats.map, roughnessMap: roadMats.rough, roughness: 1, metalness: 0, bumpMap: roadMats.rough, bumpScale: 0.6, envMapIntensity: 0.9, side: old.side, polygonOffset: old.polygonOffset, polygonOffsetFactor: old.polygonOffsetFactor, polygonOffsetUnits: old.polygonOffsetUnits });
+    const mat = std({ map: roadMats.map, roughnessMap: roadMats.rough, roughness: 1, metalness: 0, bumpMap: roadMats.rough, bumpScale: 0.6, envMapIntensity: 0.9, side: old.side, polygonOffset: true, polygonOffsetFactor: -4, polygonOffsetUnits: -8 });
+    // La ruta siempre por delante del suelo que la rodea: en el vertex shader acercamos su profundidad a la cámara
+    // a lo largo del mismo rayo de visión (no cambia dónde se dibuja, solo quién tapa a quién).
+    mat.onBeforeCompile = (sh) => {
+      sh.vertexShader = sh.vertexShader.replace("#include <project_vertex>", `#include <project_vertex>
+        { float dist = length(mvPosition.xyz);
+          float pull = min(0.5 * dist, 2.5 + 0.035 * dist);
+          vec3 mvPull = mvPosition.xyz * (1.0 - pull / max(dist, 0.001));
+          gl_Position = projectionMatrix * vec4(mvPull, 1.0); }`);
+    };
+    mat.customProgramCacheKey = () => "road-pull";
+    return mat;
   }
 
   // ───────────── Árboles: pinos de varios pisos irregulares y algunos de copa redonda ─────────────
