@@ -397,11 +397,12 @@
   const leafyMat = () => std({ color: 0xc8dcae, map: tex.leaves(3, 3), bumpMap: tex.leaves(3, 3), bumpScale: 1.6, roughness: 0.8, envMapIntensity: 0.5 });
   function upgradeTreeMesh(o, world) {
     const hex = o.material.color.getHex();
-    if (hex === 0x5a3d25) { o.material = std({ color: 0x6b4a2f, map: tex.bark(1, 1), bumpMap: tex.bark(1, 1), bumpScale: 1.2, roughness: 0.95 }); return; }
+    if (hex === 0x5a3d25) { o.userData.rvTrunk = true; o.material = std({ color: 0x6b4a2f, map: tex.bark(1, 1), bumpMap: tex.bark(1, 1), bumpScale: 1.2, roughness: 0.95 }); return; }
     if (hex !== 0x2f5e2a) return;
     o.geometry.computeBoundingBox(); const box = o.geometry.boundingBox.clone();
     if (!PINE) PINE = pineGeo(); if (!LEAFY) LEAFY = leafyGeo();
     o.geometry = fitTo(PINE.clone(), box);
+    o.userData.rvTree = "pine";
     o.material = std({ color: 0xb4d0a8, map: tex.leaves(2, 2), bumpMap: tex.leaves(2, 2), bumpScale: 1.5, roughness: 0.82, envMapIntensity: 0.6 });
     // uno de cada tres pasa a ser un árbol de copa redonda
     const ids = []; for (let i = 0; i < o.count; i += 3) ids.push(i);
@@ -415,6 +416,7 @@
       if (o.instanceColor) { o.getColorAt(id, c); c.add(shift); leafy.setColorAt(j, c); }
     });
     o.instanceMatrix.needsUpdate = true; if (leafy.instanceColor) leafy.instanceColor.needsUpdate = true;
+    leafy.userData.rvTree = "leafy"; leafy.userData.ids = ids; leafy.userData.src = o;
     leafy.castShadow = true; leafy.name = "rv-leafy"; leafy.frustumCulled = o.frustumCulled;
     leafy.position.copy(o.position); leafy.quaternion.copy(o.quaternion); leafy.scale.copy(o.scale);
     (o.parent || world).add(leafy);

@@ -1,0 +1,1 @@
+Árboles generados con ez-tree (MIT, Daniel Greenheck). Texturas de corteza: Poly Haven y TextureCan (CC0).

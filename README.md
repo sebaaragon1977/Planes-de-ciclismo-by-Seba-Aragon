@@ -18,6 +18,7 @@ App web gratuita para rodillo smart: cargá un track **GPX** (por ejemplo, expor
 - **Pruebas y zonas**: test de FTP de 20 minutos y test de FC máxima y umbral, en un óvalo plano; te calcula las zonas de potencia y de pulso. **🎯 Calibrar a cero**: soltás los pedales y calibra solo.
 - **Encuentros en la ruta**: ves a los demás en el 3D y en la altimetría, el aviso de rebufo, y cuando están a la vista (menos de 150 m) pueden activar una videollamada chiquita que se corta sola al alejarse.
 - **Cuenta con mail y clave**: te registrás una vez (mail, país, provincia o estado y clave), verificás el mail y después entrás con mail y clave.
+- **Árboles realistas** cerca del ciclista (roble, fresno, álamo, pinos y arbustos con corteza y hojas reales; se puede apagar en el panel) y público con figuras redondeadas. Árboles generados con [ez-tree](https://github.com/dgreenheck/ez-tree) (MIT); texturas de Poly Haven y TextureCan (CC0).
 - **Instalable como app** desde Chrome o Edge (botón 📲 en el panel).
 
 Contacto: sebaaragon1977@gmail.com

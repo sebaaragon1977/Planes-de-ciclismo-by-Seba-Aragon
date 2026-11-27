@@ -237,21 +237,23 @@
         const x = p.x - w * off, z = p.z + u * off;
         people.push({ x, z, y: groundAt(x, z, p.y), yaw: Math.atan2(p.x - x, p.z - z), d: dd, s: 0.92 + rnd() * 0.16,
           shirt: shirts[(rnd() * shirts.length) | 0], pant: pants[(rnd() * pants.length) | 0], skin: skins[(rnd() * skins.length) | 0],
-          ph: rnd() * 6.28, f: 5 + rnd() * 4, cheer: rnd() < 0.8 });
+          ph: rnd() * 6.28, f: 5 + rnd() * 4, cheer: rnd() < 0.8, hair: [0x1b1410, 0x2b1d14, 0x4a3020, 0x6b4a2a, 0xb08850, 0x101010, 0x8a8a8a][(rnd() * 7) | 0] });
       }
       if (people.length) {
         const n = people.length, M = (c) => mat({ color: 0xffffff }, { roughness: c });
-        const legs = new T.InstancedMesh((() => { const g = new T.BoxGeometry(0.34, 0.82, 0.22); g.translate(0, 0.41, 0); return g; })(), M(0.85), n);
-        const body = new T.InstancedMesh((() => { const g = new T.BoxGeometry(0.46, 0.62, 0.27); g.translate(0, 1.13, 0); return g; })(), M(0.75), n);
-        const head = new T.InstancedMesh((() => { const g = new T.SphereGeometry(0.13, 10, 8); g.translate(0, 1.6, 0); return g; })(), M(0.7), n);
-        const arms = new T.InstancedMesh((() => { const g = new T.BoxGeometry(0.11, 0.6, 0.11); g.translate(0, -0.28, 0); return g; })(), M(0.75), n * 2);
+        // figuras redondeadas (cápsulas y esferas) en vez de cajas
+        const legs = new T.InstancedMesh(merge([capsule(0.075, 0.72, 0.09, 0.06), capsule(0.075, 0.72, -0.09, 0.06), shoe(0.09), shoe(-0.09)]), M(0.85), n);
+        const body = new T.InstancedMesh(merge([torso(), neck()]), M(0.75), n);
+        const head = new T.InstancedMesh((() => { const g = new T.SphereGeometry(0.112, 16, 12); g.scale(0.92, 1.08, 0.98); g.translate(0, 1.62, 0.005); return g; })(), M(0.65), n);
+        const hair = new T.InstancedMesh((() => { const g = new T.SphereGeometry(0.118, 16, 10, 0, Math.PI * 2, 0, Math.PI * 0.55); g.scale(0.94, 1.05, 1.02); g.translate(0, 1.64, -0.01); return g; })(), M(0.9), n);
+        const arms = new T.InstancedMesh(merge([capsule(0.048, 0.5, 0, -0.56), hand()]), M(0.75), n * 2);
         const col = new T.Color();
         people.forEach((P, i) => {
-          legs.setColorAt(i, col.setHex(P.pant)); body.setColorAt(i, col.setHex(P.shirt)); head.setColorAt(i, col.setHex(P.skin));
+          legs.setColorAt(i, col.setHex(P.pant)); body.setColorAt(i, col.setHex(P.shirt)); head.setColorAt(i, col.setHex(P.skin)); hair.setColorAt(i, col.setHex(P.hair));
           arms.setColorAt(2 * i, col.setHex(P.shirt)); arms.setColorAt(2 * i + 1, col.setHex(P.shirt));
         });
-        [legs, body, head, arms].forEach((m) => { m.castShadow = true; m.frustumCulled = false; grp.add(m); });
-        grp.userData.crowd = { people, legs, body, head, arms };
+        [legs, body, head, hair, arms].forEach((m) => { m.castShadow = true; m.frustumCulled = false; grp.add(m); });
+        grp.userData.crowd = { people, legs, body, head, hair, arms };
         poseCrowd(grp.userData.crowd, 0, 1e9);
       }
     }
@@ -271,16 +273,40 @@
       const jump = near && P.cheer ? Math.max(0, Math.sin(time * P.f * 0.55 + P.ph)) * 0.16 : 0;
       q.setFromAxisAngle(up, P.yaw + (near ? 0 : 0.15 * Math.sin(time * 0.6 + P.ph)));
       sc.set(P.s, P.s, P.s); v.set(P.x, P.y + jump, P.z);
-      m4.compose(v, q, sc); c.legs.setMatrixAt(i, m4); c.body.setMatrixAt(i, m4); c.head.setMatrixAt(i, m4);
+      m4.compose(v, q, sc); c.legs.setMatrixAt(i, m4); c.body.setMatrixAt(i, m4); c.head.setMatrixAt(i, m4); if (c.hair) c.hair.setMatrixAt(i, m4);
       for (const side of [-1, 1]) {
         const base = near && P.cheer ? 2.5 + 0.35 * wave * side : 0.12 + (near ? 0.6 + 0.5 * Math.abs(wave) : 0.05 * wave);
         q2.setFromAxisAngle(fw, side * base);
-        sh.set(side * 0.29 * P.s, 1.4 * P.s, 0).applyQuaternion(q); v.set(P.x + sh.x, P.y + jump + sh.y, P.z + sh.z);
+        sh.set(side * 0.235 * P.s, 1.43 * P.s, 0).applyQuaternion(q); v.set(P.x + sh.x, P.y + jump + sh.y, P.z + sh.z);
         m4.compose(v, q.clone().multiply(q2), sc); c.arms.setMatrixAt(2 * i + (side > 0 ? 1 : 0), m4);
       }
     });
-    c.legs.instanceMatrix.needsUpdate = c.body.instanceMatrix.needsUpdate = c.head.instanceMatrix.needsUpdate = c.arms.instanceMatrix.needsUpdate = true;
+    c.legs.instanceMatrix.needsUpdate = c.body.instanceMatrix.needsUpdate = c.head.instanceMatrix.needsUpdate = c.arms.instanceMatrix.needsUpdate = true; if (c.hair) c.hair.instanceMatrix.needsUpdate = true;
   }
+
+
+  // ───────────────────────── Formas del público ─────────────────────────
+  function merge(list) {
+    const T = R().T, parts = list.map((g) => (g.index ? g.toNonIndexed() : g));
+    let n = 0; parts.forEach((g) => (n += g.attributes.position.count));
+    const pos = new Float32Array(n * 3), nor = new Float32Array(n * 3); let o = 0;
+    for (const g of parts) { pos.set(g.attributes.position.array, o * 3); nor.set(g.attributes.normal.array, o * 3); o += g.attributes.position.count; }
+    const out = new T.BufferGeometry(); out.setAttribute("position", new T.BufferAttribute(pos, 3)); out.setAttribute("normal", new T.BufferAttribute(nor, 3)); return out;
+  }
+  // cápsula vertical: arranca en y0 y sube (o baja si len es negativo… se usa con y0 como extremo superior para brazos)
+  function capsule(r, len, x, y0) {
+    const T = R().T, c = new T.CylinderGeometry(r, r * 0.92, Math.abs(len), 12, 1, true), a = new T.SphereGeometry(r, 12, 8), b = new T.SphereGeometry(r * 0.92, 12, 8);
+    const mid = y0 + len / 2; c.translate(x, mid, 0); a.translate(x, y0 + len, 0); b.translate(x, y0, 0);
+    return merge([c, a, b]);
+  }
+  function torso() {
+    const T = R().T, g = new T.SphereGeometry(0.2, 18, 14); g.scale(1.12, 1.55, 0.72); g.translate(0, 1.15, 0);
+    const hip = new T.SphereGeometry(0.17, 14, 10); hip.scale(1.1, 0.8, 0.75); hip.translate(0, 0.86, 0);
+    return merge([g, hip]);
+  }
+  function neck() { const T = R().T, g = new T.CylinderGeometry(0.05, 0.06, 0.12, 10, 1, true); g.translate(0, 1.5, 0); return g; }
+  function shoe(x) { const T = R().T, g = new T.SphereGeometry(0.07, 10, 6); g.scale(0.9, 0.55, 1.6); g.translate(x, 0.04, 0.05); return g; }
+  function hand() { const T = R().T, g = new T.SphereGeometry(0.052, 10, 8); g.translate(0, -0.6, 0); return g; }
 
   function remove(g) { if (g && g.parent) g.parent.remove(g); }
   // Ruta circular: largada y llegada en el mismo lugar → un solo arco "LARGADA · LLEGADA" adelante del ciclista.
