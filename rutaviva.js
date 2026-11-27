@@ -43,7 +43,7 @@
       fillAll: "Completá email, país y ciudad, y aceptá el aviso de privacidad.",
       badEmail: "Ese email no parece válido.",
       profileTitle: "Completá tu perfil", profileSub: "Un último paso: contanos desde dónde pedaleás.", save: "Guardar y entrar",
-      account: "Cuenta", logout: "Cerrar sesión", stats: "📊 Estadísticas",
+      account: "Cuenta", logout: "Cerrar sesión", setPass: "🔑 Crear o cambiar mi clave", stats: "📊 Estadísticas",
       feedbackBtn: "⭐ Dejá tu opinión", fbTitle: "¿Qué te parece RutaViva?", fbSub: "Puntuala y contanos qué le mejorarías.",
       fbPlaceholder: "¿Qué mejorarías? ¿Qué te gustaría que tenga?",
       send: "Enviar", cancel: "Cancelar", later: "Ahora no",
@@ -76,7 +76,7 @@
       fillAll: "Fill in email, country and city, and accept the privacy notice.",
       badEmail: "That email doesn't look valid.",
       profileTitle: "Complete your profile", profileSub: "One last step: tell us where you ride from.", save: "Save and continue",
-      account: "Account", logout: "Sign out", stats: "📊 Statistics",
+      account: "Account", logout: "Sign out", setPass: "🔑 Create or change my password", stats: "📊 Statistics",
       feedbackBtn: "⭐ Give feedback", fbTitle: "What do you think of RutaViva?", fbSub: "Rate it and tell us what you'd improve.",
       fbPlaceholder: "What would you improve? What would you like it to have?",
       send: "Send", cancel: "Cancel", later: "Not now",
@@ -109,7 +109,7 @@
       fillAll: "Preencha e-mail, país e cidade, e aceite o aviso de privacidade.",
       badEmail: "Esse e-mail não parece válido.",
       profileTitle: "Complete seu perfil", profileSub: "Último passo: conte de onde você pedala.", save: "Salvar e entrar",
-      account: "Conta", logout: "Sair", stats: "📊 Estatísticas",
+      account: "Conta", logout: "Sair", setPass: "🔑 Criar ou mudar minha senha", stats: "📊 Estatísticas",
       feedbackBtn: "⭐ Deixe sua opinião", fbTitle: "O que você acha do RutaViva?", fbSub: "Dê uma nota e conte o que você melhoraria.",
       fbPlaceholder: "O que você melhoraria? O que gostaria que tivesse?",
       send: "Enviar", cancel: "Cancelar", later: "Agora não",
@@ -309,7 +309,7 @@
     const extra = onlyProfile || np ? "" : reg ? "" : `<button type="button" class="rv-link" id="rvForgot" data-t="forgot" style="margin-top:10px"></button>`;
     const m = el(`
     <div class="rv-modal rv-own" id="rv-login"><div class="rv-card">
-      <div class="rv-langbar">${langSelect()}</div>
+      ${np && !recovering ? `<button class="rv-close" id="rvX">✕</button>` : ""}<div class="rv-langbar">${langSelect()}</div>
       <div class="rv-brand"><div class="rv-logo">🚴</div><h2 data-t="${title}"></h2></div>
       ${tabs}<div class="sub" data-t="${sub}"></div>
       ${emailF}${placeF}${passF}${privF}
@@ -323,6 +323,7 @@
     if ($("rvTabL")) { $("rvTabL").onclick = () => { keepEmail(); showLogin(false, "login"); }; $("rvTabS").onclick = () => { keepEmail(); showLogin(false, "signup"); }; }
     if ($("rvForgot")) $("rvForgot").onclick = forgot;
     $("rvResend").onclick = resend;
+    if ($("rvX")) $("rvX").onclick = () => { loginMode = "login"; closeModal("rv-login"); };
     $("rvGo").onclick = () => (onlyProfile ? saveProfileFromForm() : np ? saveNewPass() : reg ? signUp() : signIn());
     m.addEventListener("keydown", (e) => { if (e.key === "Enter") $("rvGo").click(); e.stopPropagation(); });
     applyLang();
@@ -385,8 +386,8 @@
     const { error } = await sb.auth.updateUser({ password });
     $("rvGo").disabled = false;
     if (error) return msg(t("error") + error.message, "err");
-    toast(t("passSaved")); recovering = false; loginMode = "login"; closeModal("rv-login");
-    if (user) resolveProfile();
+    const wasRecovery = recovering; toast(t("passSaved")); recovering = false; loginMode = "login"; closeModal("rv-login");
+    if (user && wasRecovery) resolveProfile();
   }
   let recovering = /type=recovery/.test(location.hash);
   async function saveProfileFromForm() {
@@ -483,10 +484,12 @@
         <div class="row">${langSelect()}<button id="rvFbBtn" data-t="feedbackBtn"></button></div>
         <div class="row"><span class="rv-acc" id="rvWho"></span></div>
         <div class="row"><button id="rvStats" data-t="stats" style="display:none"></button><button id="rvOut" data-t="logout" style="display:none"></button></div>
+        <div class="row"><button id="rvPassBtn" data-t="setPass" style="display:none"></button></div>
       </div>`);
       $("panel").appendChild(sec);
       sec.querySelector("select.rv-lang").onchange = (e) => setLang(e.target.value);
       $("rvFbBtn").onclick = openFeedback;
+      $("rvPassBtn").onclick = () => showLogin(false, "newpass");
       $("rvOut").onclick = async () => { if (sb) await sb.auth.signOut(); location.reload(); };
       $("rvStats").onclick = () => window.open("estadisticas.html", "_blank");
     }
@@ -495,6 +498,7 @@
   async function renderAccount() {
     if ($("rvWho")) $("rvWho").textContent = user ? `${user.email}${profile ? " · " + profile.ciudad + ", " + profile.pais : ""}` : "";
     if ($("rvOut")) $("rvOut").style.display = user ? "" : "none";
+    if ($("rvPassBtn")) $("rvPassBtn").style.display = user ? "" : "none";
     if (sb && user && $("rvStats")) {
       const { data } = await sb.rpc("es_admin");
       $("rvStats").style.display = data === true ? "" : "none";
