@@ -1,0 +1,31 @@
+{
+  "_ayuda": "Publicidad de los arcos inflables de largada y llegada, las vallas y las banderas. 'texto_arco' va impreso a lo largo del inflable. 'cartel' es el cartel colgante (si lo dejás en null dice LARGADA/LLEGADA según el idioma) y 'sponsor' la línea de abajo. Si ponés 'imagen' (por ejemplo \"carteles/marca-arco.png\", proporción 4:1, 1024x256) el cartel colgante muestra esa imagen. Colores en formato #rrggbb. 'personas_por_arco' es la cantidad de público (0 a 160).",
+  "largada": {
+    "color_arco": "#ff5a1f",
+    "color_texto": "#ffffff",
+    "texto_arco": "RUTAVIVA  •  TU MARCA ACÁ",
+    "cartel": null,
+    "sponsor": "Tu marca acá · aragonapps1@gmail.com",
+    "imagen": null
+  },
+  "llegada": {
+    "color_arco": "#1d63ff",
+    "color_texto": "#ffffff",
+    "texto_arco": "RUTAVIVA  •  TU MARCA ACÁ",
+    "cartel": null,
+    "sponsor": "Tu marca acá · aragonapps1@gmail.com",
+    "imagen": null
+  },
+  "vallas": {
+    "texto": "RUTAVIVA",
+    "fondo": "#0f2a44",
+    "color_texto": "#ffffff",
+    "acento": "#ff6a2b"
+  },
+  "banderas": [
+    { "texto": "RUTAVIVA", "fondo": "#ff6a2b", "color_texto": "#ffffff" },
+    { "texto": "TU MARCA", "fondo": "#ffd23d", "color_texto": "#14181f" }
+  ],
+  "publico": true,
+  "personas_por_arco": 70
+}

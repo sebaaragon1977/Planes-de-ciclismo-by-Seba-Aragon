@@ -26,7 +26,7 @@
       loginSub: "Registrate gratis para usar el simulador. Te mandamos un link de acceso a tu mail y quedás conectado en este navegador.",
       email: "Email", country: "País", city: "Ciudad",
       privacy: "Acepto el aviso de privacidad", privacyLink: "Ver aviso",
-      privacyText: "RutaViva guarda tu email, país, ciudad, idioma y los datos de uso de la app (fecha de ingreso, rutas pedaleadas, kilómetros y minutos, carteles vistos y tu opinión, si la dejás). Se usan solo para estadísticas de uso de esta app gratuita: no se venden ni se comparten con terceros. Podés pedir que se borren por mensaje a {contact} en Instagram.",
+      privacyText: "RutaViva guarda tu email, país, ciudad, idioma y los datos de uso de la app (fecha de ingreso, rutas pedaleadas y los datos de cada salida —distancia, tiempo, desnivel, velocidad, pulso, potencia y cadencia—, carteles vistos y tu opinión, si la dejás). Se usan solo para estadísticas de uso de esta app gratuita: no se venden ni se comparten con terceros. Podés pedir que se borren por mensaje a {contact} en Instagram.",
       sendLink: "Enviarme el link de acceso", sending: "Enviando…",
       sent: "¡Listo! Revisá tu mail ({email}) y tocá el link para entrar. Si no aparece, mirá en spam.",
       fillAll: "Completá email, país y ciudad, y aceptá el aviso de privacidad.",
@@ -48,7 +48,7 @@
       loginSub: "Sign up for free to use the simulator. We'll email you an access link and you'll stay signed in on this browser.",
       email: "Email", country: "Country", city: "City",
       privacy: "I accept the privacy notice", privacyLink: "Read notice",
-      privacyText: "RutaViva stores your email, country, city, language and app usage data (sign-in dates, routes ridden, kilometres and minutes, billboards seen and your feedback, if you leave it). It is used only for usage statistics of this free app: it is not sold or shared with third parties. You can ask for it to be deleted by messaging {contact} on Instagram.",
+      privacyText: "RutaViva stores your email, country, city, language and app usage data (sign-in dates, routes ridden and the data of each ride —distance, time, climb, speed, heart rate, power and cadence—, billboards seen and your feedback, if you leave it). It is used only for usage statistics of this free app: it is not sold or shared with third parties. You can ask for it to be deleted by messaging {contact} on Instagram.",
       sendLink: "Email me the access link", sending: "Sending…",
       sent: "Done! Check your inbox ({email}) and tap the link to get in. If it's not there, check spam.",
       fillAll: "Fill in email, country and city, and accept the privacy notice.",
@@ -70,7 +70,7 @@
       loginSub: "Cadastre-se grátis para usar o simulador. Enviamos um link de acesso para o seu e-mail e você fica conectado neste navegador.",
       email: "E-mail", country: "País", city: "Cidade",
       privacy: "Aceito o aviso de privacidade", privacyLink: "Ver aviso",
-      privacyText: "O RutaViva guarda seu e-mail, país, cidade, idioma e os dados de uso do app (datas de acesso, rotas pedaladas, quilômetros e minutos, placas vistas e sua opinião, se deixar). Eles são usados só para estatísticas de uso deste app gratuito: não são vendidos nem compartilhados com terceiros. Você pode pedir a exclusão por mensagem para {contact} no Instagram.",
+      privacyText: "O RutaViva guarda seu e-mail, país, cidade, idioma e os dados de uso do app (datas de acesso, rotas pedaladas e os dados de cada pedalada —distância, tempo, ganho, velocidade, frequência cardíaca, potência e cadência—, placas vistas e sua opinião, se deixar). Eles são usados só para estatísticas de uso deste app gratuito: não são vendidos nem compartilhados com terceiros. Você pode pedir a exclusão por mensagem para {contact} no Instagram.",
       sendLink: "Enviar o link de acesso", sending: "Enviando…",
       sent: "Pronto! Confira seu e-mail ({email}) e toque no link para entrar. Se não chegar, veja o spam.",
       fillAll: "Preencha e-mail, país e cidade, e aceite o aviso de privacidade.",
@@ -684,25 +684,7 @@
     });
   }
 
-  // ───────────────────────── Registro de salidas ─────────────────────────
-  // Se guarda una "foto" de la salida en curso; se registra al terminar, al reiniciar, al cambiar de ruta o al cerrar.
-  let rideKey = null, rideLogged = false, wasFinished = false, snap = null;
-  function logRide() {
-    if (!snap || !sb || !user || rideLogged || snap.d < 1000) return;
-    rideLogged = true;
-    sb.from("salidas").insert({
-      ruta: snap.name, km: +(snap.d / 1000).toFixed(2), minutos: +(snap.elapsed / 60).toFixed(1), desnivel_m: Math.round(snap.gain),
-    }).then(({ error }) => error && console.warn("[RutaViva] salida", error));
-  }
-  function watchRide() {
-    const s = S(); if (!s) return;
-    const key = s.startTime && s.route ? s.route.name + "|" + s.startTime : null;
-    if (key !== rideKey) { if (rideKey) logRide(); rideKey = key; rideLogged = false; snap = null; }
-    if (key) snap = { name: s.route.name, d: s.d || 0, elapsed: s.elapsed || 0, gain: s.gain || 0 };
-    if (s.finished && !wasFinished) logRide();
-    wasFinished = s.finished;
-  }
-  addEventListener("pagehide", () => logRide());
+  // (El registro de salidas ahora está en salidas.js.)
 
   // ───────────────────────── Bucle propio ─────────────────────────
   let last = performance.now();
@@ -715,11 +697,10 @@
         sky.position.copy(R.camera.position);
         const w = R.world();
         if (w !== lastWorld) {
-          if (lastWorld) logRide();
           lastWorld = w; clearBillboards(); rideSecs = 0; nextAdAt = (adCfg && adCfg.primer_cartel_segundos) ?? 60;
           if (w) rebuildScenery();
         }
-        if (w) { watchRide(); updateBillboards(dt); }
+        if (w) updateBillboards(dt);
       }
     } catch (e) { console.warn("[RutaViva]", e); }
     requestAnimationFrame(tick);
