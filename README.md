@@ -16,7 +16,7 @@ App web gratuita para rodillo smart: cargá un track **GPX** (por ejemplo, expor
 - **Arcos inflables de largada y llegada** con vallas, banderas y público que alienta. Textos y colores en `arcos.json` (espacio para publicidad).
 - **Instalable como app** desde Chrome o Edge (botón 📲 en el panel).
 
-Contacto: aragonapps1@gmail.com
+Contacto: sebaaragon1977@gmail.com
 
 ## Requisitos
 - **Google Chrome o Edge** (Mac, Windows, Linux o Android). Safari, Firefox e iPhone no permiten Bluetooth web.

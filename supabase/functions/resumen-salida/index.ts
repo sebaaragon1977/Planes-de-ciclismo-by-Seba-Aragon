@@ -11,7 +11,7 @@ const CORS = {
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
 const APP_URL = "https://sebaaragon1977.github.io/Planes-de-ciclismo-by-Seba-Aragon/";
-const CONTACT = Deno.env.get("CONTACT_EMAIL") ?? "aragonapps1@gmail.com";
+const CONTACT = Deno.env.get("CONTACT_EMAIL") ?? "sebaaragon1977@gmail.com";
 const json = (b: unknown, status = 200) => new Response(JSON.stringify(b), { status, headers: { ...CORS, "Content-Type": "application/json" } });
 
 const TX: Record<string, Record<string, string>> = {

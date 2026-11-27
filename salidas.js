@@ -8,7 +8,7 @@
   "use strict";
 
   // ───────────────────────── Configuración ─────────────────────────
-  const CONTACT_EMAIL = "aragonapps1@gmail.com";
+  const CONTACT_EMAIL = "sebaaragon1977@gmail.com";
   const BUCKET = "rutas-usuarios";
   const MAIL_FN = "resumen-salida";
   const $ = (id) => document.getElementById(id);
