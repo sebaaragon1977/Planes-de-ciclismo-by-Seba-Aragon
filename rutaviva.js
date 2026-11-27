@@ -22,6 +22,17 @@
 
   const TX = {
     es: {
+      tabLogin: "Entrar", tabSignup: "Registrarme", password: "Clave", password2: "Repetir clave", province: "Provincia o estado",
+      loginSub2: "Entrá con tu mail y tu clave.", signupSub: "Registrate una sola vez, gratis. Te mandamos un mail para verificar tu cuenta y después entrás siempre con tu mail y tu clave.",
+      doLogin: "Entrar", doSignup: "Crear mi cuenta", forgot: "¿Olvidaste tu clave? (o te registraste antes con link)", resend: "Reenviar mail de verificación",
+      badPass: "La clave tiene que tener al menos 6 caracteres.", passMismatch: "Las claves no coinciden.", fillLogin: "Completá tu mail y tu clave.",
+      fillSignup: "Completá mail, país, provincia o estado y la clave, y aceptá el aviso de privacidad.",
+      verifySent: "¡Listo! Te mandamos un mail a {email}. Abrilo y tocá el link para verificar tu cuenta; después entrás con tu mail y tu clave. Si no aparece, mirá en spam.",
+      already: "Ese mail ya está registrado. Entrá con tu clave, o tocá “¿Olvidaste tu clave?” para crear una nueva.",
+      badLogin: "Mail o clave incorrectos. Si te registraste antes con el link por mail, tocá “¿Olvidaste tu clave?” para crear una.",
+      notConfirmed: "Todavía no verificaste tu mail. Buscá el mail de RutaViva y tocá el link (mirá en spam).",
+      resetSent: "Te mandamos un mail a {email} para crear una clave nueva.", needEmail: "Escribí tu mail arriba.",
+      newPassTitle: "Creá tu clave nueva", newPassSub: "Elegí la clave con la que vas a entrar de ahora en más.", savePass: "Guardar clave y entrar", passSaved: "Clave guardada.",
       loginTitle: "Bienvenido a RutaViva",
       loginSub: "Registrate gratis para usar el simulador. Te mandamos un link de acceso a tu mail y quedás conectado en este navegador.",
       email: "Email", country: "País", city: "Ciudad",
@@ -44,6 +55,17 @@
       types: { "Puerto": "Puertos", "Muro": "Muros", "Gran Fondo": "Gran Fondos", "Recorrido": "Recorridos" },
     },
     en: {
+      tabLogin: "Sign in", tabSignup: "Sign up", password: "Password", password2: "Repeat password", province: "State or province",
+      loginSub2: "Sign in with your email and password.", signupSub: "Sign up once, for free. We'll email you to verify your account and then you always sign in with your email and password.",
+      doLogin: "Sign in", doSignup: "Create my account", forgot: "Forgot your password? (or signed up before with a link)", resend: "Resend verification email",
+      badPass: "The password must have at least 6 characters.", passMismatch: "Passwords don't match.", fillLogin: "Enter your email and password.",
+      fillSignup: "Fill in email, country, state or province and password, and accept the privacy notice.",
+      verifySent: "Done! We emailed {email}. Open it and tap the link to verify your account; then sign in with your email and password. If it's not there, check spam.",
+      already: "That email is already registered. Sign in with your password, or tap “Forgot your password?” to create a new one.",
+      badLogin: "Wrong email or password. If you signed up before with the email link, tap “Forgot your password?” to create one.",
+      notConfirmed: "You haven't verified your email yet. Look for the RutaViva email and tap the link (check spam).",
+      resetSent: "We emailed {email} so you can create a new password.", needEmail: "Type your email above.",
+      newPassTitle: "Create your new password", newPassSub: "Choose the password you'll use from now on.", savePass: "Save password and continue", passSaved: "Password saved.",
       loginTitle: "Welcome to RutaViva",
       loginSub: "Sign up for free to use the simulator. We'll email you an access link and you'll stay signed in on this browser.",
       email: "Email", country: "Country", city: "City",
@@ -66,6 +88,17 @@
       types: { "Puerto": "Climbs", "Muro": "Walls", "Gran Fondo": "Gran Fondos", "Recorrido": "Rides" },
     },
     pt: {
+      tabLogin: "Entrar", tabSignup: "Cadastrar", password: "Senha", password2: "Repetir senha", province: "Estado ou província",
+      loginSub2: "Entre com seu e-mail e sua senha.", signupSub: "Cadastre-se uma vez, grátis. Enviamos um e-mail para verificar sua conta e depois você sempre entra com e-mail e senha.",
+      doLogin: "Entrar", doSignup: "Criar minha conta", forgot: "Esqueceu a senha? (ou se cadastrou antes com link)", resend: "Reenviar e-mail de verificação",
+      badPass: "A senha precisa ter pelo menos 6 caracteres.", passMismatch: "As senhas não coincidem.", fillLogin: "Preencha seu e-mail e sua senha.",
+      fillSignup: "Preencha e-mail, país, estado ou província e senha, e aceite o aviso de privacidade.",
+      verifySent: "Pronto! Enviamos um e-mail para {email}. Abra e toque no link para verificar sua conta; depois entre com e-mail e senha. Se não chegar, veja o spam.",
+      already: "Esse e-mail já está cadastrado. Entre com sua senha ou toque em “Esqueceu a senha?” para criar uma nova.",
+      badLogin: "E-mail ou senha incorretos. Se você se cadastrou antes com o link por e-mail, toque em “Esqueceu a senha?” para criar uma.",
+      notConfirmed: "Você ainda não verificou seu e-mail. Procure o e-mail do RutaViva e toque no link (veja o spam).",
+      resetSent: "Enviamos um e-mail para {email} para criar uma senha nova.", needEmail: "Digite seu e-mail acima.",
+      newPassTitle: "Crie sua nova senha", newPassSub: "Escolha a senha que vai usar daqui em diante.", savePass: "Salvar senha e entrar", passSaved: "Senha salva.",
       loginTitle: "Bem-vindo ao RutaViva",
       loginSub: "Cadastre-se grátis para usar o simulador. Enviamos um link de acesso para o seu e-mail e você fica conectado neste navegador.",
       email: "E-mail", country: "País", city: "Cidade",
@@ -107,7 +140,7 @@
       "Recorrido": "Route", "📂 Cargar GPX": "📂 Load GPX", "Relieve e imagen satelital reales": "Real terrain and satellite imagery",
       "Árboles al costado": "Roadside trees", "Arrastrá un .gpx a la ventana o usá el botón.": "Drop a .gpx onto the window or use the button.",
       "Sensores": "Sensors", "🔗 Conectar rodillo": "🔗 Connect trainer", "ANT+ serie": "ANT+ serial",
-      "si “ANT+” no encuentra el pendrive": "if “ANT+” can't find the USB stick", "⚖️ Calibrar rodillo (cero)": "⚖️ Calibrate trainer (zero)",
+      "si “ANT+” no encuentra el pendrive": "if “ANT+” can't find the USB stick", "⚙️ Calibración avanzada (spin-down)": "⚙️ Advanced calibration (spin-down)",
       "Desconectado": "Disconnected", "❤️ Conectar pulsómetro": "❤️ Connect HR monitor",
       "Entrenamiento (ERG)": "Workout (ERG)", "🏋️ Cargar entrenamiento": "🏋️ Load workout",
       "Sin entrenamiento: modo recorrido libre (pendiente). Cargá el .json de Documentos/Rodillo3D/entrenamientos.": "No workout: free ride mode (grade). Load a .json or .zwo workout.",
@@ -131,7 +164,7 @@
       "Recorrido": "Percurso", "📂 Cargar GPX": "📂 Carregar GPX", "Relieve e imagen satelital reales": "Relevo e imagem de satélite reais",
       "Árboles al costado": "Árvores na beira", "Arrastrá un .gpx a la ventana o usá el botón.": "Arraste um .gpx para a janela ou use o botão.",
       "Sensores": "Sensores", "🔗 Conectar rodillo": "🔗 Conectar rolo", "ANT+ serie": "ANT+ serial",
-      "si “ANT+” no encuentra el pendrive": "se o “ANT+” não achar o pendrive", "⚖️ Calibrar rodillo (cero)": "⚖️ Calibrar rolo (zero)",
+      "si “ANT+” no encuentra el pendrive": "se o “ANT+” não achar o pendrive", "⚙️ Calibración avanzada (spin-down)": "⚙️ Calibração avançada (spin-down)",
       "Desconectado": "Desconectado", "❤️ Conectar pulsómetro": "❤️ Conectar cinta cardíaca",
       "Entrenamiento (ERG)": "Treino (ERG)", "🏋️ Cargar entrenamiento": "🏋️ Carregar treino",
       "Sin entrenamiento: modo recorrido libre (pendiente). Cargá el .json de Documentos/Rodillo3D/entrenamientos.": "Sem treino: modo percurso livre (inclinação). Carregue um treino .json ou .zwo.",
@@ -232,6 +265,7 @@
   .rv-close{float:right;background:none;border:0;color:var(--mut);font-size:20px;padding:0 4px}
   .rv-nudge{position:fixed;right:14px;bottom:180px;z-index:900;width:290px;padding:12px 14px;font-size:14px;line-height:1.4}
   .rv-acc{font-size:12px;color:var(--mut);word-break:break-all}
+  .rv-tabs{display:flex;gap:6px;margin:10px 0 4px}.rv-tabs button{flex:1;padding:8px;font-size:14px;opacity:.6}.rv-tabs button.on{opacity:1;background:var(--acc);border-color:var(--acc);color:#fff;font-weight:600}
   `;
   document.head.appendChild(css);
 
@@ -253,54 +287,108 @@
     return `<select class="rv-lang">${Object.entries(LANGS).map(([k, v]) => `<option value="${k}"${k === lang ? " selected" : ""}>${v}</option>`).join("")}</select>`;
   }
 
-  function showLogin(onlyProfile = false) {
+  let loginMode = "login";
+  function showLogin(onlyProfile = false, mode) {
     closeModal("rv-login");
+    if (mode) loginMode = mode;
     let pend = {}; try { pend = JSON.parse(ls.get("rv_pending") || "{}"); } catch {}
+    const reg = loginMode === "signup", np = loginMode === "newpass";
+    const title = onlyProfile ? "profileTitle" : np ? "newPassTitle" : "loginTitle";
+    const sub = onlyProfile ? "profileSub" : np ? "newPassSub" : reg ? "signupSub" : "loginSub2";
+    const tabs = onlyProfile || np ? "" : `<div class="rv-tabs"><button type="button" class="${reg ? "" : "on"}" id="rvTabL" data-t="tabLogin"></button><button type="button" class="${reg ? "on" : ""}" id="rvTabS" data-t="tabSignup"></button></div>`;
+    const emailF = onlyProfile || np ? "" : `<label class="rv-f"><span data-t="email"></span><input type="email" id="rvEmail" autocomplete="email" inputmode="email" value="${esc(pend.email)}"></label>`;
+    const placeF = onlyProfile || reg ? `<div class="rv-row2">
+        <label class="rv-f"><span data-t="country"></span><input id="rvCountry" list="rvCountries" autocomplete="country-name" value="${esc(pend.pais)}"></label>
+        <label class="rv-f"><span data-t="province"></span><input id="rvCity" autocomplete="address-level1" value="${esc(pend.ciudad)}"></label>
+      </div><datalist id="rvCountries">${COUNTRIES.map((c) => `<option value="${c}">`).join("")}</datalist>` : "";
+    const passF = onlyProfile ? "" : `<label class="rv-f"><span data-t="password"></span><input type="password" id="rvPass" autocomplete="${reg || np ? "new-password" : "current-password"}"></label>`
+      + (reg || np ? `<label class="rv-f"><span data-t="password2"></span><input type="password" id="rvPass2" autocomplete="new-password"></label>` : "");
+    const privF = onlyProfile || reg ? `<label class="rv-chk"><input type="checkbox" id="rvPriv"${pend.priv ? " checked" : ""}><span><span data-t="privacy"></span> · <button type="button" class="rv-link" id="rvPrivLink" data-t="privacyLink"></button></span></label>
+      <div class="rv-priv" id="rvPrivText" data-t="privacyText"></div>` : "";
+    const go = onlyProfile ? "save" : np ? "savePass" : reg ? "doSignup" : "doLogin";
+    const extra = onlyProfile || np ? "" : reg ? "" : `<button type="button" class="rv-link" id="rvForgot" data-t="forgot" style="margin-top:10px"></button>`;
     const m = el(`
     <div class="rv-modal rv-own" id="rv-login"><div class="rv-card">
       <div class="rv-langbar">${langSelect()}</div>
-      <div class="rv-brand"><div class="rv-logo">🚴</div><h2 data-t="${onlyProfile ? "profileTitle" : "loginTitle"}"></h2></div>
-      <div class="sub" data-t="${onlyProfile ? "profileSub" : "loginSub"}"></div>
-      ${onlyProfile ? "" : `<label class="rv-f"><span data-t="email"></span><input type="email" id="rvEmail" autocomplete="email" inputmode="email" value="${esc(pend.email)}"></label>`}
-      <div class="rv-row2">
-        <label class="rv-f"><span data-t="country"></span><input id="rvCountry" list="rvCountries" autocomplete="country-name" value="${esc(pend.pais)}"></label>
-        <label class="rv-f"><span data-t="city"></span><input id="rvCity" autocomplete="address-level2" value="${esc(pend.ciudad)}"></label>
-      </div>
-      <datalist id="rvCountries">${COUNTRIES.map((c) => `<option value="${c}">`).join("")}</datalist>
-      <label class="rv-chk"><input type="checkbox" id="rvPriv"${pend.priv ? " checked" : ""}><span><span data-t="privacy"></span> · <button type="button" class="rv-link" id="rvPrivLink" data-t="privacyLink"></button></span></label>
-      <div class="rv-priv" id="rvPrivText" data-t="privacyText"></div>
-      <button class="primary rv-btn" id="rvGo" data-t="${onlyProfile ? "save" : "sendLink"}"></button>
+      <div class="rv-brand"><div class="rv-logo">🚴</div><h2 data-t="${title}"></h2></div>
+      ${tabs}<div class="sub" data-t="${sub}"></div>
+      ${emailF}${placeF}${passF}${privF}
+      <button class="primary rv-btn" id="rvGo" data-t="${go}"></button>${extra}
       <div class="rv-msg" id="rvMsg"></div>
+      <button type="button" class="rv-link" id="rvResend" data-t="resend" style="display:none;margin-top:6px"></button>
     </div></div>`);
     document.body.appendChild(m);
     m.querySelector("select.rv-lang").onchange = (e) => setLang(e.target.value);
-    $("rvPrivLink").onclick = () => { const p = $("rvPrivText"); p.style.display = p.style.display === "block" ? "none" : "block"; };
-    $("rvGo").onclick = () => (onlyProfile ? saveProfileFromForm() : sendLink());
+    if ($("rvPrivLink")) $("rvPrivLink").onclick = () => { const p = $("rvPrivText"); p.style.display = p.style.display === "block" ? "none" : "block"; };
+    if ($("rvTabL")) { $("rvTabL").onclick = () => { keepEmail(); showLogin(false, "login"); }; $("rvTabS").onclick = () => { keepEmail(); showLogin(false, "signup"); }; }
+    if ($("rvForgot")) $("rvForgot").onclick = forgot;
+    $("rvResend").onclick = resend;
+    $("rvGo").onclick = () => (onlyProfile ? saveProfileFromForm() : np ? saveNewPass() : reg ? signUp() : signIn());
     m.addEventListener("keydown", (e) => { if (e.key === "Enter") $("rvGo").click(); e.stopPropagation(); });
     applyLang();
   }
   function closeModal(id) { const x = $(id); if (x) x.remove(); }
   function msg(text, kind = "") { const m = $("rvMsg"); if (m) { m.textContent = text; m.className = "rv-msg " + kind; } }
+  const val = (id) => ($(id) ? $(id).value : "");
+  function keepEmail() { const e = val("rvEmail").trim().toLowerCase(); if (e) { let p = {}; try { p = JSON.parse(ls.get("rv_pending") || "{}"); } catch {} p.email = e; ls.set("rv_pending", JSON.stringify(p)); } }
   function readForm() {
     return {
-      email: ($("rvEmail") ? $("rvEmail").value : "").trim().toLowerCase(),
-      pais: $("rvCountry").value.trim(), ciudad: $("rvCity").value.trim(), priv: $("rvPriv").checked,
+      email: val("rvEmail").trim().toLowerCase(),
+      pais: val("rvCountry").trim(), ciudad: val("rvCity").trim(), priv: $("rvPriv") ? $("rvPriv").checked : false,
     };
   }
-  async function sendLink() {
-    const f = readForm();
-    if (!f.email || !f.pais || !f.ciudad || !f.priv) return msg(t("fillAll"), "err");
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(f.email)) return msg(t("badEmail"), "err");
+  const okEmail = (e) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e);
+  const redirect = () => location.origin + location.pathname;
+  async function signIn() {
+    const email = val("rvEmail").trim().toLowerCase(), password = val("rvPass");
+    if (!email || !password) return msg(t("fillLogin"), "err");
+    if (!okEmail(email)) return msg(t("badEmail"), "err");
+    keepEmail(); $("rvGo").disabled = true; msg(t("sending"));
+    const { error } = await sb.auth.signInWithPassword({ email, password });
+    $("rvGo").disabled = false;
+    if (!error) { msg(""); return; } // onAuthStateChange sigue con el perfil
+    if (/confirm/i.test(error.message)) { msg(t("notConfirmed"), "err"); $("rvResend").style.display = "inline"; return; }
+    if (/invalid/i.test(error.message)) return msg(t("badLogin"), "err");
+    msg(t("error") + error.message, "err");
+  }
+  async function signUp() {
+    const f = readForm(), password = val("rvPass"), password2 = val("rvPass2");
+    if (!f.email || !f.pais || !f.ciudad || !password || !f.priv) return msg(t("fillSignup"), "err");
+    if (!okEmail(f.email)) return msg(t("badEmail"), "err");
+    if (password.length < 6) return msg(t("badPass"), "err");
+    if (password !== password2) return msg(t("passMismatch"), "err");
     ls.set("rv_pending", JSON.stringify(f));
     $("rvGo").disabled = true; msg(t("sending"));
-    const { error } = await sb.auth.signInWithOtp({
-      email: f.email,
-      options: { emailRedirectTo: location.origin + location.pathname, shouldCreateUser: true, data: { pais: f.pais, ciudad: f.ciudad, idioma: lang } },
-    });
+    const { data, error } = await sb.auth.signUp({ email: f.email, password, options: { emailRedirectTo: redirect(), data: { pais: f.pais, ciudad: f.ciudad, idioma: lang } } });
+    $("rvGo").disabled = false;
+    if (error) return msg(/registered|exists/i.test(error.message) ? t("already") : t("error") + error.message, "err");
+    if (data && data.user && Array.isArray(data.user.identities) && data.user.identities.length === 0) return msg(t("already"), "err");
+    if (data && data.session) return; // sin verificación de mail: ya entra
+    msg(t("verifySent", { email: f.email }), "ok"); $("rvResend").style.display = "inline";
+  }
+  async function resend() {
+    const email = val("rvEmail").trim().toLowerCase(); if (!okEmail(email)) return msg(t("needEmail"), "err");
+    const { error } = await sb.auth.resend({ type: "signup", email, options: { emailRedirectTo: redirect() } });
+    error ? msg(t("error") + error.message, "err") : msg(t("verifySent", { email }), "ok");
+  }
+  async function forgot() {
+    const email = val("rvEmail").trim().toLowerCase(); if (!okEmail(email)) return msg(t("needEmail"), "err");
+    keepEmail();
+    const { error } = await sb.auth.resetPasswordForEmail(email, { redirectTo: redirect() });
+    error ? msg(t("error") + error.message, "err") : msg(t("resetSent", { email }), "ok");
+  }
+  async function saveNewPass() {
+    const password = val("rvPass"), password2 = val("rvPass2");
+    if (password.length < 6) return msg(t("badPass"), "err");
+    if (password !== password2) return msg(t("passMismatch"), "err");
+    $("rvGo").disabled = true;
+    const { error } = await sb.auth.updateUser({ password });
     $("rvGo").disabled = false;
     if (error) return msg(t("error") + error.message, "err");
-    msg(t("sent", { email: f.email }), "ok");
+    toast(t("passSaved")); recovering = false; loginMode = "login"; closeModal("rv-login");
+    if (user) resolveProfile();
   }
+  let recovering = /type=recovery/.test(location.hash);
   async function saveProfileFromForm() {
     const f = readForm();
     if (!f.pais || !f.ciudad || !f.priv) return msg(t("fillAll"), "err");
@@ -327,11 +415,13 @@
     let session = null;
     try { ({ data: { session } } = await sb.auth.getSession()); } catch (e) { console.warn(e); }
     sb.auth.onAuthStateChange((ev, s) => {
-      if (ev === "SIGNED_IN" && s && (!user || user.id !== s.user.id)) { user = s.user; resolveProfile(); }
+      if (ev === "PASSWORD_RECOVERY" && s) { recovering = true; user = s.user; if (location.hash.includes("access_token")) history.replaceState(null, "", location.pathname + location.search); showLogin(false, "newpass"); return; }
+      if (ev === "SIGNED_IN" && s && (!user || user.id !== s.user.id)) { user = s.user; if (!recovering) resolveProfile(); }
       if (ev === "SIGNED_OUT") { user = null; profile = null; showLogin(); }
     });
     if (!session) return showLogin();
     user = session.user;
+    if (recovering) { if (location.hash.includes("access_token")) history.replaceState(null, "", location.pathname + location.search); return showLogin(false, "newpass"); }
     resolveProfile();
   }
   let resolving = false;

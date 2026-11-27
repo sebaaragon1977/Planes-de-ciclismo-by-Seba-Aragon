@@ -576,6 +576,18 @@
       g.strokeStyle = "rgba(60,207,122,.9)"; g.lineWidth = 2; g.beginPath(); g.moveTo(x, y); g.lineTo(x, y - 26); g.stroke();
       g.fillStyle = "#3ccf7a"; g.beginPath(); g.moveTo(x, y - 26); g.lineTo(x + 14, y - 21); g.lineTo(x, y - 16); g.closePath(); g.fill();
     }
+    // otros ciclistas en la ruta
+    const mj = window.__MJ;
+    if (mj && mj.others && mj.others.size) {
+      g.font = "bold 11px -apple-system,Segoe UI,sans-serif"; g.textAlign = "center";
+      for (const o of mj.others.values()) {
+        const x = G.X(o.d), y = G.Y(r.Me(o.d).y);
+        g.fillStyle = "#3d8bfd"; g.strokeStyle = "#fff"; g.lineWidth = 1.5; g.beginPath(); g.arc(x, y, 5, 0, 7); g.fill(); g.stroke();
+        const nm = String(o.n || "?").slice(0, 14), tw = g.measureText(nm).width;
+        g.fillStyle = "rgba(10,14,20,.75)"; g.fillRect(x - tw / 2 - 4, y - 24, tw + 8, 15);
+        g.fillStyle = "#cfe3ff"; g.fillText(nm, x, y - 13);
+      }
+    }
     // ayuda
     if (canPick()) {
       g.font = "12px -apple-system,Segoe UI,sans-serif"; g.textAlign = "right";

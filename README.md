@@ -14,6 +14,9 @@ App web gratuita para rodillo smart: cargá un track **GPX** (por ejemplo, expor
 - **📋 Mis salidas**: cada salida queda guardada con distancia, tiempo, desnivel, velocidad, pulso, potencia (media, máxima y normalizada), cadencia y energía. Se guarda al llegar o con **🏁 Terminar y guardar** si cortás antes, y te llega el resumen por mail. Desde el historial podés repetir la ruta.
 - **Elegí dónde largar**: tocá o arrastrá la altimetría de abajo antes de iniciar.
 - **Arcos inflables de largada y llegada** con vallas, banderas y público que alienta. Textos y colores en `arcos.json` (espacio para publicidad).
+- **Pruebas y zonas**: test de FTP de 20 minutos y test de FC máxima y umbral, en un óvalo plano; te calcula las zonas de potencia y de pulso. **🎯 Calibrar a cero**: soltás los pedales y calibra solo.
+- **Encuentros en la ruta**: ves a los demás en el 3D y en la altimetría, el aviso de rebufo, y cuando están a la vista (menos de 150 m) pueden activar una videollamada chiquita que se corta sola al alejarse.
+- **Cuenta con mail y clave**: te registrás una vez (mail, país, provincia o estado y clave), verificás el mail y después entrás con mail y clave.
 - **Instalable como app** desde Chrome o Edge (botón 📲 en el panel).
 
 Contacto: sebaaragon1977@gmail.com

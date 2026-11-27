@@ -13,9 +13,9 @@
   // ───────────── Textos ─────────────
   let lang = ls.get("rv_lang", (navigator.language || "es").slice(0, 2)); if (!["es", "en", "pt"].includes(lang)) lang = "es";
   const TX = {
-    es: { title: "RODAR CON OTROS", on: "Mostrarme y ver a otros en esta ruta", nick: "Tu nombre en la ruta", draft: "Rebufo", login: "Iniciá sesión para rodar con otros.", alone: "Nadie más en esta ruta ahora.", here: (n) => `En esta ruta ahora: ${n}`, noroute: "Cargá una ruta para ver quién está rodando.", wheel: (n, p) => `🌀 A rueda de ${n} · −${p}%`, ahead: "adelante", behind: "atrás" },
-    en: { title: "RIDE WITH OTHERS", on: "Show me and see others on this route", nick: "Your name on the road", draft: "Drafting", login: "Sign in to ride with others.", alone: "Nobody else on this route right now.", here: (n) => `On this route now: ${n}`, noroute: "Load a route to see who is riding.", wheel: (n, p) => `🌀 On ${n}'s wheel · −${p}%`, ahead: "ahead", behind: "behind" },
-    pt: { title: "PEDALAR COM OUTROS", on: "Mostrar-me e ver outros nesta rota", nick: "Seu nome na estrada", draft: "Vácuo", login: "Entre para pedalar com outros.", alone: "Ninguém mais nesta rota agora.", here: (n) => `Nesta rota agora: ${n}`, noroute: "Carregue uma rota para ver quem está pedalando.", wheel: (n, p) => `🌀 No vácuo de ${n} · −${p}%`, ahead: "à frente", behind: "atrás" },
+    es: { title: "RODAR CON OTROS", on: "Mostrarme y ver a otros en esta ruta", nick: "Tu nombre en la ruta", draft: "Rebufo", login: "Iniciá sesión para rodar con otros.", alone: "Nadie más en esta ruta ahora.", here: (n) => `En esta ruta ahora: ${n}`, noroute: "Cargá una ruta para ver quién está rodando.", wheel: (n, p) => `🌀 A rueda de ${n} · rebufo: −${p}% de esfuerzo`, ahead: "adelante", behind: "atrás" },
+    en: { title: "RIDE WITH OTHERS", on: "Show me and see others on this route", nick: "Your name on the road", draft: "Drafting", login: "Sign in to ride with others.", alone: "Nobody else on this route right now.", here: (n) => `On this route now: ${n}`, noroute: "Load a route to see who is riding.", wheel: (n, p) => `🌀 On ${n}'s wheel · drafting: −${p}% effort`, ahead: "ahead", behind: "behind" },
+    pt: { title: "PEDALAR COM OUTROS", on: "Mostrar-me e ver outros nesta rota", nick: "Seu nome na estrada", draft: "Vácuo", login: "Entre para pedalar com outros.", alone: "Ninguém mais nesta rota agora.", here: (n) => `Nesta rota agora: ${n}`, noroute: "Carregue uma rota para ver quem está pedalando.", wheel: (n, p) => `🌀 No vácuo de ${n} · −${p}% de esforço`, ahead: "à frente", behind: "atrás" },
   }[lang];
 
   // ───────────── Estado ─────────────
@@ -85,6 +85,7 @@
     channel = sb.channel("ruta:" + key, { config: { broadcast: { self: false }, presence: { key: myId } } });
     channel.on("broadcast", { event: "pos" }, ({ payload }) => onPos(payload));
     channel.on("broadcast", { event: "bye" }, ({ payload }) => payload && removeOther(payload.id));
+    channel.on("broadcast", { event: "rtc" }, ({ payload }) => { if (payload && payload.to === myId) rtcHandlers.forEach((h) => { try { h(payload); } catch (e) { console.warn(e); } }); });
     channel.on("presence", { event: "sync" }, refreshList);
     channel.on("presence", { event: "leave" }, ({ key: k }) => { removeOther(k); refreshList(); });
     channel.subscribe((st) => { if (st === "SUBSCRIBED") { channel.track({ n: nick(), k: kitId() }); sendPos(true); } });
@@ -128,6 +129,7 @@
         o.root.position.copy(pA); o.root.lookAt(pA.x + dir.x, pA.y + (f.y - b.y) / 24, pA.z + dir.z);
         o.q.v = o.v; o.q.grade = e.grade; R.animRider(dt, o.root, o.q);
         o.label.position.set(pA.x, pA.y + 2.15, pA.z); o.label.quaternion.copy(R.camera.quaternion);
+        { const dc = R.camera.position.distanceTo(o.label.position), k = Math.max(1, dc / 20); o.label.scale.setScalar(k); o.label.position.y += (k - 1) * 0.25; }
         o.root.visible = o.label.visible = true;
       }
       // rebufo: el más cercano adelante a menos de 4 m (y más de 0,3 m)
@@ -146,7 +148,11 @@
   }
   requestAnimationFrame(frame);
   // para pruebas locales: simular el mensaje de otro ciclista
-  window.__MJ = { inject: (msg) => { testMode = true; if (!chanKey) chanKey = msg.key = routeKey(); else msg.key = chanKey; onPos(msg); }, others };
+  const rtcHandlers = [];
+  window.__MJ = { inject: (msg) => { testMode = true; if (!chanKey) chanKey = msg.key = routeKey(); else msg.key = chanKey; onPos(msg); }, others,
+    get myId() { return myId || window.__MJ_TESTID || null; }, get online() { return !!(channel && chanKey) || testMode; },
+    onRtc: (fn) => rtcHandlers.push(fn), deliverRtc: (p) => rtcHandlers.forEach((h) => h(p)),
+    sendRtc: (payload) => { if (testMode && window.__MJ_RELAY) return window.__MJ_RELAY(Object.assign({ from: window.__MJ_TESTID }, payload)); if (channel) channel.send({ type: "broadcast", event: "rtc", payload: Object.assign({ from: myId }, payload) }); } };
 
   // ───────────── Interfaz ─────────────
   let badge = null;
