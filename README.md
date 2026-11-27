@@ -11,6 +11,12 @@ App web gratuita para rodillo smart: cargá un track **GPX** (por ejemplo, expor
 - Paisaje mejorado: cielo con nubes, balizas, arbustos y mojones de kilómetro.
 - Carteles al costado de la ruta cada 3 a 5 minutos (se configuran en `carteles.json`).
 - Botón para dejar tu opinión.
+- **📋 Mis salidas**: cada salida queda guardada con distancia, tiempo, desnivel, velocidad, pulso, potencia (media, máxima y normalizada), cadencia y energía. Se guarda al llegar o con **🏁 Terminar y guardar** si cortás antes, y te llega el resumen por mail. Desde el historial podés repetir la ruta.
+- **Elegí dónde largar**: tocá o arrastrá la altimetría de abajo antes de iniciar.
+- **Arcos inflables de largada y llegada** con vallas, banderas y público que alienta. Textos y colores en `arcos.json` (espacio para publicidad).
+- **Instalable como app** desde Chrome o Edge (botón 📲 en el panel).
+
+Contacto: aragonapps1@gmail.com
 
 ## Requisitos
 - **Google Chrome o Edge** (Mac, Windows, Linux o Android). Safari, Firefox e iPhone no permiten Bluetooth web.
@@ -22,7 +28,10 @@ App web gratuita para rodillo smart: cargá un track **GPX** (por ejemplo, expor
 2. Cargá tus datos en el panel: peso, FTP y umbral de pulso.
 3. **🌍 Rutas famosas**, **📂 Cargar GPX** o **🏋️ Cargar entrenamiento** (`demo_3x5_200W.json` es un ejemplo).
 4. **🔗 Conectar rodillo** (primero prueba ANT+, después Bluetooth).
-5. Pedaleá: arranca sola. Al terminar podés **exportar el TCX** y subirlo a Garmin Connect o Strava.
+5. Pedaleá: arranca sola. Al terminar se guarda en **📋 Mis salidas** y podés **exportar el TCX** para Garmin Connect o Strava.
+
+## Mail con el resumen
+La función `supabase/functions/resumen-salida` manda el mail desde aragonapps1@gmail.com. Necesita el secreto `SMTP_PASS` (contraseña de aplicación de Gmail) en Supabase → Edge Functions → Secrets.
 
 ## Carteles
 Editá `carteles.json`. Para una marca, agregá un objeto con `"tipo": "imagen"`, un `"id"` y `"imagen": "carteles/archivo.png"` (proporción 2:1). Las vistas de cada cartel aparecen en `estadisticas.html`.
