@@ -17,6 +17,7 @@
 
   const TX = {
     es: {
+      rankBtn: "🏆 Ranking", rankTitle: "🏆 Ranking de la ruta", rankRule: "Mejor tiempo de cada ciclista, solo salidas completas desde el km 0.", rankEmpty: "Todavía nadie completó esta ruta. ¡Podés ser el primero!", rankNoRoute: "Cargá una ruta para ver su ranking.", rankYou: "🏆 Quedaste {pos}° de {n} en el ranking de esta ruta.", nickLbl: "Tu nombre en el ranking", nickSave: "Guardar", nickSaved: "Listo, ya aparecés con ese nombre.", rider: "Ciclista", timeCol: "Tiempo", spdCol: "Vel.",
       endBtn: "🏁 Terminar y guardar", myRides: "📋 Mis salidas",
       pickHint: "Tocá o arrastrá la altimetría para elegir dónde largar",
       pickLocked: "Para largar desde otro punto, primero tocá ⟲ Reiniciar.",
@@ -42,6 +43,7 @@
       legend: "Altimetría · Pulso · Potencia", error: "Error: ",
     },
     en: {
+      rankBtn: "🏆 Leaderboard", rankTitle: "🏆 Route leaderboard", rankRule: "Each rider's best time, only complete rides from km 0.", rankEmpty: "Nobody has completed this route yet. You can be the first!", rankNoRoute: "Load a route to see its leaderboard.", rankYou: "🏆 You placed {pos} of {n} on this route's leaderboard.", nickLbl: "Your name on the leaderboard", nickSave: "Save", nickSaved: "Done, you now show up with that name.", rider: "Rider", timeCol: "Time", spdCol: "Speed",
       endBtn: "🏁 Finish and save", myRides: "📋 My rides",
       pickHint: "Tap or drag the elevation profile to choose where to start",
       pickLocked: "To start from another point, tap ⟲ Restart first.",
@@ -67,6 +69,7 @@
       legend: "Elevation · Heart rate · Power", error: "Error: ",
     },
     pt: {
+      rankBtn: "🏆 Ranking", rankTitle: "🏆 Ranking da rota", rankRule: "Melhor tempo de cada ciclista, só pedaladas completas desde o km 0.", rankEmpty: "Ninguém completou esta rota ainda. Você pode ser o primeiro!", rankNoRoute: "Carregue uma rota para ver o ranking.", rankYou: "🏆 Você ficou em {pos}º de {n} no ranking desta rota.", nickLbl: "Seu nome no ranking", nickSave: "Salvar", nickSaved: "Pronto, você aparece com esse nome.", rider: "Ciclista", timeCol: "Tempo", spdCol: "Vel.",
       endBtn: "🏁 Encerrar e salvar", myRides: "📋 Minhas pedaladas",
       pickHint: "Toque ou arraste a altimetria para escolher onde largar",
       pickLocked: "Para largar de outro ponto, toque antes em ⟲ Reiniciar.",
@@ -327,6 +330,10 @@
     const res = await saveRide(r, { complete });
     if (!res.ok) { l1.className = "err"; l1.textContent = res.short ? t("tooShort") : t("saveErr", { e: res.error || "" }); return; }
     l1.className = "ok"; l1.textContent = t("saved");
+    if (complete && r.d0 <= 50) fetchRanking(r.name, 1000).then((rk) => {
+      const me = rk.rows && rk.rows.find((x) => x.es_mio);
+      if (me) { const l = line("ok", t("rankYou", { pos: me.posicion, n: rk.rows.length })); l.style.cursor = "pointer"; l.onclick = openRanking; }
+    });
     if (res.same && r.mailed) return;
     const l2 = line("", t("mailing"));
     const mr = await sendMail(res.id);
@@ -486,6 +493,55 @@
     } catch (e) { toast(t("error") + (e.message || e), 6000); }
   }
 
+
+  // ───────────────────────── Ranking por ruta ─────────────────────────
+  const ISO = { argentina: "AR", uruguay: "UY", chile: "CL", brasil: "BR", brazil: "BR", paraguay: "PY", bolivia: "BO", peru: "PE", colombia: "CO", ecuador: "EC", venezuela: "VE",
+    mexico: "MX", espana: "ES", spain: "ES", espanha: "ES", italia: "IT", italy: "IT", francia: "FR", france: "FR", franca: "FR", "estados unidos": "US", "united states": "US", usa: "US", eeuu: "US", eua: "US",
+    canada: "CA", "reino unido": "GB", "united kingdom": "GB", uk: "GB", inglaterra: "GB", alemania: "DE", germany: "DE", alemanha: "DE", portugal: "PT", belgica: "BE", belgium: "BE",
+    "paises bajos": "NL", holanda: "NL", netherlands: "NL", suiza: "CH", switzerland: "CH", suica: "CH", australia: "AU", "costa rica": "CR", panama: "PA", cuba: "CU", "republica dominicana": "DO",
+    guatemala: "GT", honduras: "HN", "el salvador": "SV", nicaragua: "NI", "puerto rico": "PR", austria: "AT", irlanda: "IE", ireland: "IE", andorra: "AD", japon: "JP", japan: "JP", china: "CN",
+    "nueva zelanda": "NZ", "new zealand": "NZ", sudafrica: "ZA", "south africa": "ZA", israel: "IL", polonia: "PL", poland: "PL", suecia: "SE", sweden: "SE", noruega: "NO", norway: "NO", dinamarca: "DK", denmark: "DK" };
+  function flag(pais) {
+    const k = String(pais || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().trim();
+    const c = ISO[k] || (/^[a-z]{2}$/.test(k) ? k.toUpperCase() : null);
+    return c ? String.fromCodePoint(...[...c].map((x) => 0x1f1e6 + x.charCodeAt(0) - 65)) : "🏳️";
+  }
+  async function fetchRanking(name, limit = 20) {
+    const sb = RV().sb; if (!sb || !RV().user) return { error: t("needLogin") };
+    const { data, error } = await sb.rpc("ranking_ruta", { p_ruta: name, p_limite: limit });
+    return error ? { error: error.message } : { rows: data || [] };
+  }
+  async function openRanking() {
+    const s = S();
+    const name = s && s.route ? s.route.name : null;
+    const m = cardModal("sv-rank", `<button class="rv-close" data-x>✕</button><h2>${esc(t("rankTitle"))}</h2>
+      <div class="sv-route">${esc(name || "")}</div><div class="sv-meta">${esc(t("rankRule"))}</div>
+      <div id="svRankBody" class="sub" style="margin-top:10px">${esc(name ? t("loading") : t("rankNoRoute"))}</div>
+      <div id="svNick"></div>${contactHtml()}`);
+    m.querySelector("[data-x]").onclick = () => closeModal("sv-rank");
+    if (!name) return;
+    const body = $("svRankBody"), res = await fetchRanking(name, 20);
+    if (res.error) { body.textContent = res.error; return; }
+    if (!res.rows.length) body.textContent = t("rankEmpty");
+    else {
+      body.className = "";
+      body.innerHTML = `<table class="pz-tab sv-rank"><tr><td></td><td><b>#</b></td><td><b>${esc(t("rider"))}</b></td><td><b>${esc(t("timeCol"))}</b></td><td><b>${esc(t("spdCol"))}</b></td></tr>${res.rows.map((r) => {
+        const medal = r.posicion == 1 ? "🥇" : r.posicion == 2 ? "🥈" : r.posicion == 3 ? "🥉" : "";
+        return `<tr style="${r.es_mio ? "background:rgba(255,106,43,.18);font-weight:700" : ""}"><td></td><td>${medal || r.posicion}</td><td>${flag(r.pais)} ${esc(r.apodo)}</td><td>${fmtTime((r.minutos || 0) * 60)}</td><td>${num(r.vel_media, 1)} km/h</td></tr>`;
+      }).join("")}</table>`;
+    }
+    // apodo para el ranking
+    const prof = RV().profile || {}, nick = $("svNick");
+    nick.innerHTML = `<div class="sv-meta" style="margin-top:10px">${esc(t("nickLbl"))}</div><div class="row"><input id="svNickIn" maxlength="24" style="flex:1;background:#1a2230;color:var(--fg);border:1px solid #33415a;border-radius:8px;padding:7px" value="${esc(prof.apodo || "")}"><button id="svNickOk">${esc(t("nickSave"))}</button></div><div class="sv-meta" id="svNickMsg"></div>`;
+    $("svNickIn").addEventListener("keydown", (e) => e.stopPropagation());
+    $("svNickOk").onclick = async () => {
+      const v = $("svNickIn").value.trim().slice(0, 24), sb = RV().sb, u = RV().user; if (!sb || !u) return;
+      const { error } = await sb.from("perfiles").update({ apodo: v || null }).eq("id", u.id);
+      if (error) { $("svNickMsg").textContent = t("error") + error.message; return; }
+      if (RV().profile) RV().profile.apodo = v || null;
+      $("svNickMsg").textContent = t("nickSaved"); setTimeout(openRanking, 600);
+    };
+  }
   // ¿Guardar antes de reiniciar?
   function hookReset() {
     const b = $("btnReset"); if (!b || b.__sv) return; b.__sv = true;
@@ -515,11 +571,16 @@
       const b = el(`<button id="btnMyRides" class="rv-own"></button>`);
       tcx.after(b); b.onclick = openList;
     }
+    if ($("btnMyRides") && !$("btnRanking")) {
+      const b = el(`<button id="btnRanking" class="rv-own"></button>`);
+      $("btnMyRides").after(b); b.onclick = openRanking;
+    }
     labelButtons();
   }
   function labelButtons() {
     if ($("btnEndSave")) $("btnEndSave").textContent = t("endBtn");
     if ($("btnMyRides")) $("btnMyRides").textContent = t("myRides");
+    if ($("btnRanking")) $("btnRanking").textContent = t("rankBtn");
     if ($("btnInstall")) $("btnInstall").textContent = INST[lang()];
   }
   function updateButtons() {
