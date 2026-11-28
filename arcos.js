@@ -272,7 +272,7 @@
       const wave = Math.sin(time * P.f + P.ph);
       const jump = near && P.cheer ? Math.max(0, Math.sin(time * P.f * 0.55 + P.ph)) * 0.16 : 0;
       q.setFromAxisAngle(up, P.yaw + (near ? 0 : 0.15 * Math.sin(time * 0.6 + P.ph)));
-      sc.set(P.s, P.s, P.s); v.set(P.x, P.y + jump, P.z);
+      const ps = P.real ? 1e-4 : P.s; sc.set(ps, ps, ps); v.set(P.x, P.y + jump, P.z); // P.real: lo reemplaza una persona 3D (personas.js)
       m4.compose(v, q, sc); c.legs.setMatrixAt(i, m4); c.body.setMatrixAt(i, m4); c.head.setMatrixAt(i, m4); if (c.hair) c.hair.setMatrixAt(i, m4);
       for (const side of [-1, 1]) {
         const base = near && P.cheer ? 2.5 + 0.35 * wave * side : 0.12 + (near ? 0.6 + 0.5 * Math.abs(wave) : 0.05 * wave);
@@ -366,6 +366,7 @@
     } catch (e) { console.warn("[arcos]", e); }
     requestAnimationFrame(tick);
   }
+  window.__ARCOS = { get crowds() { return crowds; } };
   function start() { requestAnimationFrame(tick); }
   if (window.__R) start(); else addEventListener("rodillo-listo", start, { once: true });
 })();
