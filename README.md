@@ -50,3 +50,6 @@ Hecha por Sebastián Aragón.
 - **🌦️ Condiciones climáticas y hora en vivo** (clima.js): clima real del lugar de la ruta (Open-Meteo). El viento según tu rumbo frena o empuja y cambia la resistencia del rodillo; la lluvia y la nieve se ven caer, oscurecen el cielo y bajan la visibilidad; el piso mojado suma rodadura; el sol sigue la hora local real del track. Se apaga desde el panel.
 - **🎥 Videollamada con ciclistas cercanos**: casilla en el panel para activarla o no.
 - **Público 3D realista** (personas.js): cerca del ciclista, el público de largada y llegada pasa a ser personas 3D con esqueleto y animación (Michelle bailando samba y un maniquí que asiente o espera), modelos de los ejemplos de three.js (personajes de Mixamo) en `personas/`, cargados con `lib/` (three.js r162, MIT). Casilla "Público 3D realista (más pesado)".
+
+## Mail diario de novedades
+Cada mejora publicada se anota en `novedades.json` (fecha + lista en español e inglés). Todos los días a las 20:00 de Argentina (23:00 UTC) un `pg_cron` llama a la función `novedades-diarias`, que manda un único mail bilingüe con lo nuevo desde el último envío a todos los suscriptores confirmados. Si no hay novedades, no manda nada. La función solo acepta la clave `x-cron-key` guardada en `privado.config`; con `?prueba=mail` envía solo a ese mail sin marcar nada como enviado.
