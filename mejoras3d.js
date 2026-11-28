@@ -476,11 +476,12 @@
 
   // Hora local "de la ruta": la hora del reloj (o la elegida) interpretada en el huso de la ruta (≈ longitud/15).
   function sunDate(lat, lon) {
-    if (sunMode === "auto" && gpxTime) {
+    if (sunMode === "auto" && gpxTime && !(window.__CLIMA && window.__CLIMA.on)) {
       const f = S.route && S.route.total ? Math.min(1, Math.max(0, S.d / S.route.total)) : 0;
       return new Date(gpxTime.start + (gpxTime.end - gpxTime.start) * f);
     }
     const now = new Date();
+    if (sunMode === "auto" && window.__CLIMA && window.__CLIMA.on && window.__CLIMA.wx) return now; // hora real del lugar
     let hh = now.getHours(), mm = now.getMinutes();
     if (sunMode !== "auto") { [hh, mm] = sunMode.split(":").map(Number); }
     const tz = routeTz(lat, lon, now);
@@ -489,6 +490,7 @@
   // Huso horario aproximado de la ruta: si queda cerca del usuario usa el de su reloj (Argentina es UTC−3 aunque
   // por longitud sería −4); Europa usa hora central (+1, +2 en verano); si no, longitud/15.
   function routeTz(lat, lon, now) {
+    const C = window.__CLIMA; if (C && C.on && C.tzOffset !== null && C.tzOffset !== undefined) return C.tzOffset;
     const mine = -now.getTimezoneOffset() / 60, geo = Math.round(lon / 15);
     if (Math.abs(geo - mine) <= 1) return mine;
     if (lat > 35 && lat < 72 && lon > -10 && lon < 30) { const m = now.getUTCMonth(); return lon < -3 ? (m >= 3 && m <= 9 ? 1 : 0) : (m >= 3 && m <= 9 ? 2 : 1); }
@@ -497,6 +499,7 @@
   const sunDir = new T.Vector3(0.45, 0.75, 0.3).normalize();
   const cWhite = new Color(0xffffff), cWarm = new Color(0xffb46b), cNight = new Color(0x9fb4ff);
   let sunInfo = "";
+  window.__M3D = Object.assign(window.__M3D || {}, { updateSun: () => updateSun() });
   function updateSun() {
     const o = S && S.origin; if (!o || !sun) return;
     const p = solarPosition(sunDate(o.lat, o.lon), o.lat, o.lon);
@@ -507,6 +510,7 @@
     sun.color.copy(night ? cNight : cWarm).lerp(cWhite, night ? 0 : k);
     sun.intensity = night ? 0.6 : 0.95 + 0.85 * k;
     if (hemi) hemi.intensity = night ? 1.0 : 0.72 + 0.25 * k;
+    const CL = window.__CLIMA; if (CL && CL.on && CL.wx) { sun.intensity *= Math.max(0.25, CL.sunK); if (hemi) hemi.intensity *= CL.hemiK; }
     const deg = Math.round(p.el / D2R), az = Math.round(p.az / D2R);
     const card = ["N", "NE", "E", "SE", "S", "SO", "O", "NO"][Math.round(az / 45) % 8];
     sunInfo = night ? "de noche (sol bajo el horizonte)" : `sol a ${deg}° de altura, hacia el ${card}`;

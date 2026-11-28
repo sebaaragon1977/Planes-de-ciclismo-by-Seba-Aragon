@@ -44,3 +44,8 @@ Editá `carteles.json`. Para una marca, agregá un objeto con `"tipo": "imagen"`
 Imágenes satelitales © Esri, Maxar, Earthstar Geographics · Relieve: AWS Terrain Tiles (Mapzen) · Trazados de rutas © colaboradores de OpenStreetMap (ODbL).
 
 Hecha por Sebastián Aragón.
+
+## Agenda de encuentros, clima en vivo y videollamada on/off
+- **📅 Agenda de encuentros** (agenda.js): próximas 2 semanas día por día, con la hora en tu zona y en UTC. Proponés ruta, día y hora; los demás se suman, y al crearlo sale un mail a todos los suscriptores con la hora en su zona y en UTC (función `aviso-encuentro`, migración `2026-11-28_encuentros.sql`).
+- **🌦️ Condiciones climáticas y hora en vivo** (clima.js): clima real del lugar de la ruta (Open-Meteo). El viento según tu rumbo frena o empuja y cambia la resistencia del rodillo; la lluvia y la nieve se ven caer, oscurecen el cielo y bajan la visibilidad; el piso mojado suma rodadura; el sol sigue la hora local real del track. Se apaga desde el panel.
+- **🎥 Videollamada con ciclistas cercanos**: casilla en el panel para activarla o no.

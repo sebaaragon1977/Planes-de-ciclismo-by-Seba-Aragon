@@ -106,8 +106,26 @@
     }
     render();
   }
+  // Interruptor: videollamada activada o no (se guarda en el navegador)
+  let videoOn = (() => { try { return localStorage.getItem("rv_video") !== "0"; } catch { return true; } })();
+  const VLBL = { es: "Videollamada con ciclistas cercanos", en: "Video call with nearby riders", pt: "Videochamada com ciclistas próximos" };
+  function addToggle() {
+    if (document.getElementById("chkVideo")) return;
+    const anchor = document.getElementById("chkArbolesHd") || document.getElementById("chkAds") || document.querySelector("#panel input[type=checkbox]");
+    const host = anchor ? anchor.closest("label") || anchor.parentElement : null;
+    if (!host) return;
+    const lab = document.createElement("label"); lab.className = "rv-own"; lab.style.display = "block";
+    lab.innerHTML = `<input type="checkbox" id="chkVideo"${videoOn ? " checked" : ""}> 🎥 <span id="lblVideo"></span>`;
+    host.parentElement.insertBefore(lab, host.nextSibling);
+    const upd = () => { const l = document.getElementById("lblVideo"); if (l) l.textContent = VLBL[document.documentElement.lang] || VLBL.es; };
+    upd(); new MutationObserver(upd).observe(document.documentElement, { attributes: true, attributeFilter: ["lang"] });
+    document.getElementById("chkVideo").onchange = (e) => {
+      videoOn = e.target.checked; try { localStorage.setItem("rv_video", videoOn ? "1" : "0"); } catch {}
+      if (!videoOn && peer) { hangup(true); peer = null; render(); }
+    };
+  }
   async function onRtc(m) {
-    if (!m || !m.from) return;
+    if (!m || !m.from || !videoOn) return;
     if (!peer || peer.id !== m.from) {
       // mensaje de alguien que no es el cercano actual: solo aceptamos "ready" si está a la vista
       const o = MJ().others.get(m.from);
@@ -147,8 +165,9 @@
 
   // ¿Quién está a la vista?
   function watch() {
+    addToggle();
     const mj = MJ(), s = S();
-    if (!mj || !s || !s.route || !mj.online) { if (peer) { hangup(true); peer = null; render(); } return; }
+    if (!videoOn || !mj || !s || !s.route || !mj.online) { if (peer) { hangup(true); peer = null; render(); } return; }
     if (peer) {
       const o = mj.others.get(peer.id);
       if (!o || Math.abs(o.d - s.d) > FAR) {
@@ -164,7 +183,7 @@
     if (best) { peer = { id: best.id, n: best.o.n || "?", ready: false, acked: false }; render(); }
   }
 
-  window.__EN = { get peer() { return peer; }, get call() { return call; }, get ready() { return myReady; } };
+  window.__EN = { get peer() { return peer; }, get call() { return call; }, get ready() { return myReady; }, get on() { return videoOn; } };
   function start() {
     const mj = MJ();
     if (!mj || !mj.onRtc) { setTimeout(start, 1000); return; }
