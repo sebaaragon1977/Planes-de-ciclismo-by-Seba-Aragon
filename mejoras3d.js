@@ -91,6 +91,13 @@
   const grey = (v) => `rgb(${v | 0},${v | 0},${v | 0})`;
   function grain(g, w, h, n, lo, hi, r, sz = 1) { for (let i = 0; i < n; i++) { g.fillStyle = grey(lo + r() * (hi - lo)); g.fillRect(r() * w, r() * h, sz, sz); } }
 
+  // Texturas fotográficas (generadas con Meshy): asfalto y pasto. Si todavía no cargaron, se usa lo procedural y se reemplaza al llegar.
+  const photo = {};
+  for (const n of ["asfalto", "pasto"]) { const im = new Image(); im.onload = () => { photo[n] = im; photoReady(n); }; im.src = "texturas/" + n + ".jpg?v=1"; }
+  function photoReady(n) {
+    if (n === "asfalto" && roadMats) { const { col, rgh } = asphaltCanvases(); roadMats.map.image = col; roadMats.rough.image = rgh; roadMats.map.needsUpdate = roadMats.rough.needsUpdate = true; }
+    if (n === "pasto") for (const [k, t] of cache) if (k.startsWith("grass")) { drawGrass(t.image.getContext("2d"), t.image.width, t.image.height); t.needsUpdate = true; }
+  }
   const tex = {
     // gris claro granulado: para multiplicar el color del material sin cambiarlo mucho
     grain: (rx = 1, ry = 1) => canvasTex("grain", 256, 256, (g, w, h) => { g.fillStyle = grey(235); g.fillRect(0, 0, w, h); grain(g, w, h, 9000, 205, 255, rand(3), 2); }, rx, ry),
@@ -247,11 +254,18 @@
     for (let i = 0; i < 26000; i++) { const x = r() * w, y = r() * h, v = 85 + r() * 90; g.strokeStyle = `rgba(${v | 0},${v | 0},${v | 0},.7)`; g.lineWidth = 1; g.beginPath(); g.moveTo(x, y); g.lineTo(x + (r() - 0.5) * 3, y - 2 - r() * 4); g.stroke(); }
     for (let i = 0; i < 1500; i++) { const v = 150 + r() * 70; g.fillStyle = grey(v); const sz = 1 + r() * 2; g.fillRect(r() * w, r() * h, sz, sz); }
   }, 1, 1, false);
-  const grassTex = (rep) => canvasTex("grass", 512, 512, (g, w, h) => {
-    const r = rand(55); g.fillStyle = "#5c7a3e"; g.fillRect(0, 0, w, h);
+  const grassTex = (rep) => canvasTex("grass", 512, 512, drawGrass, rep, rep);
+  function drawGrass(g, w, h) {
+    const r = rand(55);
+    if (photo.pasto) { // foto de pasto + manchas suaves para que no se note la repetición
+      g.drawImage(photo.pasto, 0, 0, w, h);
+      for (let i = 0; i < 40; i++) { const c = r() < 0.5 ? "120,150,70" : "60,85,40"; blob(g, w, h, r() * w, r() * h, 40 + r() * 100, `rgba(${c},.18)`, `rgba(${c},0)`); }
+      return;
+    }
+    g.fillStyle = "#5c7a3e"; g.fillRect(0, 0, w, h);
     for (let i = 0; i < 90; i++) { const c = r() < 0.5 ? "110,140,70" : "70,95,45"; blob(g, w, h, r() * w, r() * h, 30 + r() * 90, `rgba(${c},.45)`, `rgba(${c},0)`); }
     for (let i = 0; i < 30000; i++) { const x = r() * w, y = r() * h, gg = 90 + r() * 80; g.strokeStyle = `rgba(${gg * 0.7 | 0},${gg | 0},${gg * 0.45 | 0},.55)`; g.beginPath(); g.moveTo(x, y); g.lineTo(x + (r() - 0.5) * 3, y - 2 - r() * 5); g.stroke(); }
-  }, rep, rep);
+  }
   function addDetail(mat, scale, strength) {
     mat.onBeforeCompile = (sh) => {
       sh.uniforms.detailMap = { value: detailTex }; sh.uniforms.detailScale = { value: scale }; sh.uniforms.detailStrength = { value: strength };
@@ -306,6 +320,7 @@
     const col = document.createElement("canvas"), rgh = document.createElement("canvas"); col.width = rgh.width = W; col.height = rgh.height = H;
     const g = col.getContext("2d"), q = rgh.getContext("2d");
     g.fillStyle = "#34373c"; g.fillRect(0, 0, W, H); q.fillStyle = grey(225); q.fillRect(0, 0, W, H);
+    if (photo.asfalto) { const T0 = 320; for (let y = 0; y < H; y += T0) for (let x = 0; x < W; x += T0) g.drawImage(photo.asfalto, x, y, T0, T0); g.fillStyle = "rgba(40,42,46,.25)"; g.fillRect(0, 0, W, H); }
     // manchas y parches de reparación
     for (let i = 0; i < 40; i++) { const x = 80 + r() * (W - 160), y = r() * H, ww = 80 + r() * 280, hh = 120 + r() * 520, v = 38 + r() * 18; g.fillStyle = `rgba(${v},${v},${v + 3},.55)`; g.fillRect(x, y, ww, hh); }
     // huellas de neumáticos: más oscuras y más lisas (brillan)
@@ -314,7 +329,7 @@
       const lq = q.createLinearGradient(W * (u - 0.07), 0, W * (u + 0.07), 0); lq.addColorStop(0, "rgba(130,130,130,0)"); lq.addColorStop(0.5, "rgba(130,130,130,.85)"); lq.addColorStop(1, "rgba(130,130,130,0)"); q.fillStyle = lq; q.fillRect(W * (u - 0.07), 0, W * 0.14, H);
     }
     // grano: piedritas claras y oscuras
-    for (let i = 0; i < 640000; i++) { const v = r() < 0.5 ? 20 + r() * 25 : 75 + r() * 70; g.fillStyle = `rgb(${v | 0},${v | 0},${(v + 2) | 0})`; g.fillRect(r() * W, r() * H, r() < 0.9 ? 1 : 2, r() < 0.9 ? 1 : 2); }
+    for (let i = 0, nG = photo.asfalto ? 90000 : 640000; i < nG; i++) { const v = r() < 0.5 ? 20 + r() * 25 : 75 + r() * 70; g.fillStyle = `rgb(${v | 0},${v | 0},${(v + 2) | 0})`; g.fillRect(r() * W, r() * H, r() < 0.9 ? 1 : 2, r() < 0.9 ? 1 : 2); }
     // grietas finas
     g.strokeStyle = "rgba(15,15,16,.7)"; g.lineWidth = 1.2;
     for (let i = 0; i < 24; i++) { let x = 120 + r() * (W - 240), y = r() * H; g.beginPath(); g.moveTo(x, y); for (let k = 0; k < 14; k++) { x += (r() - 0.5) * 36; y += 12 + r() * 28; g.lineTo(x, y); } g.stroke(); }
